@@ -1,7 +1,10 @@
 import time
 from flask import Flask, render_template, request, jsonify
 import WorkFile
+import ssl
 
+context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+context.load_cert_chain(certfile='ssl/cert.pem', keyfile='ssl/private.pem')
 
 
 app = Flask(__name__)
@@ -57,5 +60,4 @@ def StartAll():
     Down_Image_Path = WorkFile.Down_Image_Path
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=443, certfile='ssl/cert.pem', keyfile='ssl/key.pem')
-
+    app.run(host='0.0.0.0', port=443, ssl_context=context)
