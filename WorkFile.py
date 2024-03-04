@@ -18,7 +18,7 @@ Top_Offset_To_X = [0, -2, -1, -2, -3, 0]
 
 Top_With = [1050, 1150, 1300, 1280, 400, 1000]
 Top_Height = [550, 550, 1000, 820, 300, 500]
-Top_HeightMult = [0, 0, 0, 0, 0, 5]
+Top_HeightMult = [0, -0.15, 0, 0, 0, 5]
 
 
 Down_Offset_To_Y = [-30, -10]
@@ -40,6 +40,7 @@ def BeginFun():
         Down_overlay_image.append(1)
         Down_overlay_image[Count_For] = Image.open(im)
         Count_For += 1
+        
 
     Count_For = 0
     for im in Top_Image_Path:
@@ -53,7 +54,9 @@ pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 
 def body_Detect(Index, frame, landmarks, offset_Y, withTop, offsetXTop):
+    hie = time.time()
     ySize, xSize = frame.shape[:2]
+    massSize = [xSize, ySize]
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
@@ -77,28 +80,30 @@ def body_Detect(Index, frame, landmarks, offset_Y, withTop, offsetXTop):
     ClothYsize, ClothXsize = Top_overlay_image[Index].size
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(
-        ((xSizeForNew * ClothYsize) / ClothXsize) + ((xSizeForNew * ClothYsize) / ClothXsize) * Top_HeightMult[Index])
+    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * Top_HeightMult[Index])
 
     new_size = (max(100, xSizeForNew), max(100, ySizeForNew))
-
     offsetX = int(((distanceX / 100) * offsetXTop) * ProcentSizeXOffSet)
     offsetY = int(((distanceY / 100) * offset_Y) * ProcentSizeYOffSet)
 
     PosYSholder = shoulder_left[1] * ySize
-    center_x = int(
-        ((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
+    center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
     center_y = int((PosYSholder + (ySizeForNew / 2))) - offsetY
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
 
     # Освободить память: удалить ненужные переменные
-    del LeftTop, LeftRight, shoulder_left, shoulder_right, hip_left, distanceX, distanceY, ClothYsize, ClothXsize, xSizeForNew, ySizeForNew, offsetX, offsetY, PosYSholder
+    print(time.time() - hie)
+    XPr = (overlay_position[0] / xSize) * 100
+    YPr = (overlay_position[1] / ySize) * 100
 
-    return new_size, overlay_position
+    del LeftTop, LeftRight, shoulder_left, shoulder_right, hip_left, distanceX, distanceY, xSizeForNew, ySizeForNew, offsetX, offsetY, PosYSholder
+
+    return new_size, overlay_position, XPr, YPr, massSize
 
 
 def leg_Detect(Index, frame, landmarks, offset_Y, withDown, offsetXDown):
+
     ySize, xSize = frame.shape[:2]
 
     XFSize, YFSize = 640, 480
@@ -159,42 +164,44 @@ def resImage(img, indexT, indexD, offsetTop, offset_Down, with_Down, with_Top, o
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     results = pose.process(rgb_image)
-
+    XPr, YPr, ySizeDis, TopSize = 0, 0, 0, 0
     if results.pose_landmarks:
         landmarks = results.pose_landmarks.landmark
         annotated_image = rgb_image.copy()
         annotated_image_bgr = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
 
-        with Image.fromarray(cv2.cvtColor(annotated_image_bgr, cv2.COLOR_BGR2RGB)) as frame_pil:
-            if indexT != -1:
-                TopSize, Top_overlay_position = body_Detect(indexT, image, landmarks,
-                                                            Top_Offset_To_Y[indexT] + int(offsetTop),
-                                                            Top_With[indexT] + int(with_Top),
-                                                            Top_Offset_To_X[indexT] + int(offsetX_Top))
-                Top_overlay_image_resized = Top_overlay_image[indexT].resize(TopSize)
+        frame_pil = Image.fromarray(cv2.cvtColor(annotated_image_bgr, cv2.COLOR_BGR2RGB))
+        if indexT != -1:
+            TopSize, Top_overlay_position, XPr, YPr, ySizeDis = body_Detect(indexT, image, landmarks,
+                                                                                           Top_Offset_To_Y[
+                                                                                               indexT] + int(offsetTop),
+                                                                                           Top_With[indexT] + int(
+                                                                                               with_Top),
+                                                                                           Top_Offset_To_X[
+                                                                                               indexT] + int(
+                                                                                               offsetX_Top))
 
-            if indexD != -1:
-                DownSize, Down_overlay_position = leg_Detect(indexD, image, landmarks,
-                                                             Down_Offset_To_Y[indexD] + int(offset_Down),
-                                                             Down_With[indexD] + int(with_Down),
-                                                             Down_Offset_To_X[indexD] + int(offsetDownX))
-                Down_overlay_image_resized = Down_overlay_image[indexD].resize(DownSize)
+        if indexD != -1:
+            DownSize, Down_overlay_position = leg_Detect(indexD, image, landmarks,
+                                                         Down_Offset_To_Y[indexD] + int(offset_Down),
+                                                         Down_With[indexD] + int(with_Down),
+                                                         Down_Offset_To_X[indexD] + int(offsetDownX))
+            Down_overlay_image_resized = Down_overlay_image[indexD].resize(DownSize)
 
-            if indexD != -1:
-                frame_pil.paste(Down_overlay_image_resized, Down_overlay_position, Down_overlay_image_resized)
+        if indexD != -1:
+            frame_pil.paste(Down_overlay_image_resized, Down_overlay_position, Down_overlay_image_resized)
 
-            if indexT != -1:
-                frame_pil.paste(Top_overlay_image_resized, Top_overlay_position, Top_overlay_image_resized)
 
-            path = f"static/{indexD} {indexT} {with_Top} {offsetX_Top} {offsetDownX} {offsetTop} {offset_Down} {with_Down}{os.path.basename(img)}"
-            delAll()
-            frame_pil.save(path)
 
-            if os.path.isfile(img):
-                try:
-                    os.remove(img)
-                except:
-                    print()
+        path = f"static/{indexD} {indexT} {with_Top} {offsetX_Top} {offsetDownX} {offsetTop} {offset_Down} {with_Down}{os.path.basename(img)}"
+        delAll()
+        frame_pil.save(path)
+
+        if os.path.isfile(img):
+            try:
+                os.remove(img)
+            except:
+                print()
 
         print(time.time() - t)
         print(time.time() - tN)
@@ -209,16 +216,14 @@ def resImage(img, indexT, indexD, offsetTop, offset_Down, with_Down, with_Top, o
         del annotated_image_bgr
         del frame_pil
 
-        if indexT != -1:
-            del Top_overlay_image_resized, Top_overlay_position, TopSize
+
         if indexD != -1:
             del Down_overlay_image_resized, Down_overlay_position, DownSize
 
         gc.collect()
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-        return path
+        return path, XPr, YPr, ySizeDis, TopSize
     else:
         os.remove(img)
         pose.close()

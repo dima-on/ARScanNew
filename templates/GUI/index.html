@@ -41,7 +41,7 @@
             var newImage = document.createElement("img")
             newImage.src = path
             newImage.onclick = function () {
-                TopOn(i);
+                TopOn(i, newImage.src);
             }
             newDiv.classList.add("block")
             newDiv.appendChild(newImage);
@@ -63,9 +63,10 @@
             console.log(newDiv)
         }
 
-        function TopOn(Index) {
+        function TopOn(Index, lin) {
             TopIndex = Index
             console.log(Index)
+            document.getElementById("dad").src = lin
             ChangeTop()
             uploadPhoto()
         }
@@ -78,6 +79,10 @@
         }
     </script>
     <style>
+        body{
+            margin: 0;
+        }
+
         .Up {
             text-align: center;
         }
@@ -173,7 +178,7 @@
             position: relative;
         }
 
-        .Phot img {
+        #testImage {
             height: 536px;
             width: auto;
             position: absolute;
@@ -268,6 +273,23 @@
             margin-top: 20px;
         }
 
+        #dad {
+
+            width: 200px;
+            height: 200px;
+        }
+
+        .inin {
+            position: absolute;
+            left: 50%;
+        }
+
+        .in {
+            width: 412px;
+            height: 536px;
+            position: relative;
+        }
+
         @media screen and (max-width: 600px) {
             .Chose .TopChose .scrollable-container::-webkit-scrollbar {
                 width: 0;
@@ -284,11 +306,11 @@
             .Phot {
 
                 height: 387px;
-                width: 145px;
+                width: 166px;
 
             }
 
-            .Phot img {
+            #testImage {
                 height: 387px;
                 width: auto;
                 left: -35%;
@@ -296,12 +318,12 @@
             }
 
             .TopChose {
-                width: 94px;
+                width: 85px;
 
             }
 
             .DownChose {
-                width: 94px;
+                width: 85px;
             }
 
             .Chose .DownChose .scrollable-container {
@@ -348,18 +370,29 @@
                 margin: 0 8px;
                 border-radius: 10px;
             }
+
+
+            .in {
+                height: 387px;
+                width: 145px;
+            }
         }
 
+
     </style>
-    <title>ArScan</title>
+    <title>Your Web App</title>
 </head>
 <body onload="StartSite()">
-
 <div class="Up">
-    <div class="Phot">
+    <div class="Phot" id="Photo">
         <img id="testImage"
              src="https://scdn.comfy.ua/89fc351a-22e7-41ee-8321-f8a9356ca351/https://cdn.comfy.ua/media/catalog/product/1/4/1400621-453491-3.jpg/w_600"
              alt="Your Image">
+        <div class="in">
+            <div class="inin">
+                <img id="dad" src="static/Photo/Top/T_Short_Red.png" alt="">
+            </div>
+        </div>
 
 
     </div>
@@ -432,6 +465,8 @@
     let DownoffsetX = 0
     let DownWith = 0
     let UpWith = 0
+
+
     document.getElementById('test').addEventListener('change', function () {
         uploadPhoto()
     })
@@ -451,6 +486,7 @@
                 ChangeDown()
             } else {
                 ChangeTop()
+
             }
         }
 
@@ -477,9 +513,11 @@
     function uploadPhoto() {
 
         const fileInput = document.getElementById('test');
+
+        const IM = document.getElementById('dad')
+        let inRelative = document.querySelector(".inin")
+        let Phot = document.querySelector(".Phot")
         const file = fileInput.files[0];
-        const fileUrl = fileInput.value;
-        console.log(fileUrl)
         const fileData = 0
         if (file) {
             const formData = new FormData();
@@ -503,6 +541,36 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('testImage').src = data.result_image;
+                    imG = document.getElementById('testImage')
+
+                    LFIm = window.getComputedStyle(imG).left
+                    LFFull = parseInt(LFIm);
+
+                    let inBlock = document.querySelector('.in');
+
+                    hei = window.getComputedStyle(Phot).height
+
+                    heightFull = parseInt(hei);
+
+
+
+
+                    Kof = heightFull / data.SizeDis[1]
+                    ProccOffset = (LFFull / (Kof * data.SizeDis[0])) * 100
+
+
+                    inBlock.style.width = Kof * data.SizeDis[0] + "px"
+
+                    x = data.TopSize[0] * Kof
+                    y = data.TopSize[1] * Kof
+
+
+                    inRelative.style.top = data.YPr + '%'
+                    inRelative.style.left = (data.XPr + ProccOffset) + '%'
+
+                    IM.style.width = x + "px"
+                    IM.style.height = y + "px"
+
                 })
 
         } else {
@@ -511,35 +579,64 @@
 
     }
 
+    function UpDown(k) {
+        let inRelative = document.querySelector(".inin")
+        left = parseFloat(window.getComputedStyle(inRelative).top);
+        left += 2 * -k
+        console.log(left)
+        inRelative.style.top = left + 'px'
+    }
+
+    function WithShort(k) {
+        let IM = document.getElementById("dad")
+        let inRelative = document.querySelector(".inin")
+
+        left = parseFloat(window.getComputedStyle(inRelative).left);
+
+
+        Hie = parseFloat(window.getComputedStyle(IM).height);
+        Wid = parseFloat(window.getComputedStyle(IM).width);
+
+
+        Hie += 2 * k
+        Wid += 2 * k
+        left += 1 * -k
+
+        IM.style.height = Hie + 'px'
+        IM.style.width = Wid + 'px'
+        inRelative.style.left = left + 'px'
+
+    }
+
+    function RightLeft(k){
+        let inRelative = document.querySelector(".inin")
+        left = parseFloat(window.getComputedStyle(inRelative).left);
+        left += 1 * k
+        inRelative.style.left = left + 'px'
+    }
 
     function Add_offset() {
-        TopoffsetY++
-        uploadPhoto()
+        UpDown(1)
     }
 
     function Minuse_offset() {
-        TopoffsetY--
-        uploadPhoto()
+        UpDown(-1)
     }
 
     function Add_WithTop() {
-        UpWith += 50
-        uploadPhoto()
+        WithShort(1)
     }
 
     function Minuse_WithTop() {
-        UpWith -= 50
-        uploadPhoto()
+        WithShort(-1)
     }
 
     function Add_offsetxTop() {
-        TopoffsetX += 1
-        uploadPhoto()
+        RightLeft(1)
     }
 
     function Minuse_offsetxTop() {
-        TopoffsetX -= 1
-        uploadPhoto()
+        RightLeft(-1)
     }
 
     function Add_offsetDown() {

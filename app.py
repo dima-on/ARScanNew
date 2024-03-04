@@ -1,7 +1,10 @@
 import time
 from flask import Flask, render_template, request, jsonify
 import WorkFile
+import ssl
 
+context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+context.load_cert_chain(certfile='ssl/cert.pem', keyfile='ssl/private.pem')
 
 
 app = Flask(__name__)
@@ -45,10 +48,9 @@ def lick():
 
         path = upload_folder + uploaded_file.filename
         print(DownIndex)
-        im = testIMG(path, int(TopIndex), int(DownIndex), int(offset_Top), int(offset_Down), int(with_Down), int(with_Top), int(offsetX_Top), int(offset_DownX), time.time())
+        im, XPr, YPr, SizeDis, TopSize = testIMG(path, int(TopIndex), int(DownIndex), int(offset_Top), int(offset_Down), int(with_Down), int(with_Top), int(offsetX_Top), int(offset_DownX), time.time())
 
-
-    return jsonify({'result_image': im})
+    return jsonify({'result_image': im, 'XPr': XPr, 'YPr': YPr, 'SizeDis': SizeDis, 'TopSize': TopSize})
 
 
 @app.route('/StartProgram', methods=['POST'])
@@ -57,5 +59,5 @@ def StartAll():
     Down_Image_Path = WorkFile.Down_Image_Path
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=443, certfile='ssl/cert.pem', keyfile='ssl/key.pem')
-
+    app.run(host='0.0.0.0', port=443, ssl_context=context)
+    #app.run(host='0.0.0.0', port=5000)
