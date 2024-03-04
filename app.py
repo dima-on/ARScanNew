@@ -60,4 +60,7 @@ def StartAll():
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=443, ssl_context=context)
+<<<<<<< HEAD
     #app.run(host='0.0.0.0', port=5000)
+=======
+>>>>>>> 215a2430153ed42322d7e5575a623d35c02755ae
