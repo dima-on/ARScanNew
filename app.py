@@ -59,5 +59,5 @@ def StartAll():
     Down_Image_Path = WorkFile.Down_Image_Path
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=443, ssl_context=context)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=443, ssl_context=context)
+    #app.run(host='0.0.0.0', port=5000)
