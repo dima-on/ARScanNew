@@ -8,9 +8,7 @@ context.load_cert_chain(certfile='ssl/cert.pem', keyfile='ssl/private.pem')
 
 
 app = Flask(__name__)
-def testIMG(img, inT, inD, offsetY, offset_Down, with_Down, with_Top, offsetX_Top, offsetDownX, t):
-    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-    return WorkFile.resImage(img, inT, inD, offsetY, offset_Down, with_Down, with_Top, offsetX_Top, offsetDownX, t)
+
 
 
 @app.route('/')
@@ -22,21 +20,13 @@ def index():
 
 @app.route('/lick', methods=['POST'])
 def lick():
-    print("test")
     # Обработка загрузки фото
     uploaded_file = request.files['photo']
-    offset_Top = request.form.get('offset')
-    Data = request.form.get('photoData')
-    offsetX_Top = request.form.get('offsetX')
-    with_Top = request.form.get('UpWith')
+
     TopIndex = request.form.get('TopIndex')
 
-    offset_Down = request.form.get('offsetDown')
-    offset_DownX = request.form.get('offsetXDown')
-    with_Down = request.form.get('DownWith')
     DownIndex = request.form.get('DownIndex')
 
-    print("end")
 
 
     if uploaded_file.filename != '':
@@ -47,10 +37,9 @@ def lick():
         uploaded_file.save(upload_folder + uploaded_file.filename)
 
         path = upload_folder + uploaded_file.filename
-        print(DownIndex)
-        im, XPr, YPr, SizeDis, TopSize = testIMG(path, int(TopIndex), int(DownIndex), int(offset_Top), int(offset_Down), int(with_Down), int(with_Top), int(offsetX_Top), int(offset_DownX), time.time())
+        XPr, YPr, SizeDis, TopSize, XPrDown, YPrDown, DownSize = WorkFile.resImage(path, int(TopIndex), int(DownIndex))
 
-    return jsonify({'result_image': im, 'XPr': XPr, 'YPr': YPr, 'SizeDis': SizeDis, 'TopSize': TopSize})
+    return jsonify({'XPr': XPr, 'YPr': YPr, 'SizeDis': SizeDis, 'TopSize': TopSize, 'XPrDown': XPrDown, 'YPrDown': YPrDown, 'DownSize': DownSize})
 
 
 @app.route('/StartProgram', methods=['POST'])
@@ -59,5 +48,5 @@ def StartAll():
     Down_Image_Path = WorkFile.Down_Image_Path
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=443, ssl_context=context)
-    #app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=443, ssl_context=context)
+    app.run(host='0.0.0.0', port=5000)

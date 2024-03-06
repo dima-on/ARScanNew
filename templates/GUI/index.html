@@ -55,7 +55,7 @@
             var newImage = document.createElement("img")
             newImage.src = path
             newImage.onclick = function () {
-                DownOn(i);
+                DownOn(i, newImage.src);
             }
             newDiv.classList.add("block")
             newDiv.appendChild(newImage);
@@ -71,15 +71,16 @@
             uploadPhoto()
         }
 
-        function DownOn(Index) {
+        function DownOn(Index, lin) {
             DownIndex = Index
             console.log(Index)
+            document.getElementById("dadDown").src = lin
             ChangeDown()
             uploadPhoto()
         }
     </script>
     <style>
-        body{
+        body {
             margin: 0;
         }
 
@@ -275,21 +276,50 @@
 
         #dad {
 
-            width: 200px;
-            height: 200px;
-            transition: all 0.5s ease-in-out;
+            width: 0px;
+            height: 0px;
+            transition: all 0.5s ease-out, box-shadow 0.3s ease-in-out;
+            pointer-events: none;
+        }
+
+        #dad.active {
+            box-shadow: 0 0 10px 5px rgb(35, 161, 206);
+
+        }
+
+        #dadDown {
+
+            width: 0px;
+            height: 0px;
+            transition: all 0.5s ease-out;
+            pointer-events: none;
+        }
+
+        #dadDown.active {
+            box-shadow: 0 0 10px 5px rgb(35, 161, 206);
+
         }
 
         .inin {
             position: absolute;
             left: 50%;
-            transition: all 0.5s ease-in-out;
+            transition: all 0.5s ease-out;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ininDown {
+            position: absolute;
+            left: 50%;
+            transition: all 0.5s ease-out;
+            pointer-events: none;
         }
 
         .in {
             width: 412px;
             height: 536px;
             position: relative;
+            pointer-events: none;
 
         }
 
@@ -316,7 +346,8 @@
             #testImage {
                 height: 387px;
                 width: auto;
-                left: -35%;
+                left: 50%;
+                transform: translate(-50%, 0);
 
             }
 
@@ -368,7 +399,6 @@
                 border: 0;
                 padding: 0;
                 display: flex;
-
                 font-size: 35px;
                 margin: 0 8px;
                 border-radius: 10px;
@@ -378,7 +408,11 @@
             .in {
                 height: 387px;
                 width: 145px;
+                left: 50%;
+                transform: translate(-50%, 0);
             }
+
+
         }
 
 
@@ -394,6 +428,9 @@
         <div class="in">
             <div class="inin">
                 <img id="dad" src="static/Photo/Top/T_Short_Red.png" alt="">
+            </div>
+            <div class="ininDown">
+                <img id="dadDown" src="static/Photo/Top/T_Short_Red.png" alt="">
             </div>
         </div>
 
@@ -462,12 +499,6 @@
 
 </body>
 <script>
-    let TopoffsetY = 0
-    let TopoffsetX = 0
-    let DownoffsetY = 0
-    let DownoffsetX = 0
-    let DownWith = 0
-    let UpWith = 0
 
 
     document.getElementById('test').addEventListener('change', function () {
@@ -497,6 +528,14 @@
 
 
     function ChangeDown() {
+        var dad = document.getElementById('dadDown');
+        dad.classList.add('active');
+        timeoutId = setTimeout(function () {
+            dad.classList.remove('active');
+        }, 700);
+
+
+
         let Top = document.getElementById("Top")
         let Down = document.getElementById("Down")
         Down.style.display = "flex"
@@ -505,6 +544,12 @@
     }
 
     function ChangeTop() {
+        var dad = document.getElementById('dad');
+        dad.classList.add('active');
+        timeoutId = setTimeout(function () {
+            dad.classList.remove('active');
+        }, 700);
+
         let Top = document.getElementById("Top")
         let Down = document.getElementById("Down")
 
@@ -518,23 +563,20 @@
         const fileInput = document.getElementById('test');
 
         const IM = document.getElementById('dad')
+        const IMDown = document.getElementById('dadDown')
+
+        let inBlock = document.querySelector('.in');
+
         let inRelative = document.querySelector(".inin")
+        let inRelativeDown = document.querySelector(".ininDown")
+
         let Phot = document.querySelector(".Phot")
+
         const file = fileInput.files[0];
-        const fileData = 0
         if (file) {
             const formData = new FormData();
             formData.append('photo', file);
-            formData.append('photoData', fileData);
-
-            formData.append('offset', TopoffsetY);
-            formData.append('offsetX', TopoffsetX);
-            formData.append('UpWith', UpWith);
             formData.append('TopIndex', TopIndex);
-
-            formData.append('offsetDown', DownoffsetY);
-            formData.append('offsetXDown', DownoffsetX);
-            formData.append('DownWith', DownWith);
             formData.append('DownIndex', DownIndex);
 
             fetch('/lick', {
@@ -543,36 +585,36 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('testImage').src = data.result_image;
+
+
+                    document.getElementById('testImage').src = URL.createObjectURL(file);
                     imG = document.getElementById('testImage')
 
-                    LFIm = window.getComputedStyle(imG).left
-                    LFFull = parseInt(LFIm);
-
-                    let inBlock = document.querySelector('.in');
-
                     hei = window.getComputedStyle(Phot).height
-
                     heightFull = parseInt(hei);
 
-
-
-
                     Kof = heightFull / data.SizeDis[1]
-                    ProccOffset = (LFFull / (Kof * data.SizeDis[0])) * 100
-
 
                     inBlock.style.width = Kof * data.SizeDis[0] + "px"
 
                     x = data.TopSize[0] * Kof
                     y = data.TopSize[1] * Kof
 
+                    xDown = data.DownSize[0] * Kof
+                    yDown = data.DownSize[1] * Kof
+
 
                     inRelative.style.top = data.YPr + '%'
-                    inRelative.style.left = (data.XPr + ProccOffset) + '%'
+                    inRelative.style.left = data.XPr + '%'
+
+                    inRelativeDown.style.top = data.YPrDown + '%'
+                    inRelativeDown.style.left = data.XPrDown + '%'
 
                     IM.style.width = x + "px"
                     IM.style.height = y + "px"
+
+                    IMDown.style.width = xDown + "px"
+                    IMDown.style.height = yDown + "px"
 
                 })
 
@@ -580,7 +622,122 @@
             alert('Выберите файл для загрузки.');
         }
 
+
     }
+
+    function uploadPhotoTop() {
+
+        const fileInput = document.getElementById('test');
+
+        const IM = document.getElementById('dad')
+
+        let inBlock = document.querySelector('.in');
+
+        let inRelative = document.querySelector(".inin")
+
+        let Phot = document.querySelector(".Phot")
+
+        const file = fileInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append('TopIndex', TopIndex);
+            formData.append('DownIndex', DownIndex);
+
+            fetch('/lick', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+
+
+                    document.getElementById('testImage').src = URL.createObjectURL(file);
+                    imG = document.getElementById('testImage')
+
+                    hei = window.getComputedStyle(Phot).height
+                    heightFull = parseInt(hei);
+
+                    Kof = heightFull / data.SizeDis[1]
+
+                    inBlock.style.width = Kof * data.SizeDis[0] + "px"
+
+                    x = data.TopSize[0] * Kof
+                    y = data.TopSize[1] * Kof
+
+
+
+                    inRelative.style.top = data.YPr + '%'
+                    inRelative.style.left = data.XPr + '%'
+
+
+                    IM.style.width = x + "px"
+                    IM.style.height = y + "px"
+
+
+                })
+
+        } else {
+            alert('Выберите файл для загрузки.');
+        }
+
+
+    }
+
+    function uploadPhotoDown() {
+
+        const fileInput = document.getElementById('test');
+
+        const IMDown = document.getElementById('dadDown')
+
+        let inBlock = document.querySelector('.in');
+
+        let inRelativeDown = document.querySelector(".ininDown")
+
+        let Phot = document.querySelector(".Phot")
+
+        const file = fileInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append('TopIndex', TopIndex);
+            formData.append('DownIndex', DownIndex);
+
+            fetch('/lick', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+
+
+                    document.getElementById('testImage').src = URL.createObjectURL(file);
+                    imG = document.getElementById('testImage')
+
+                    hei = window.getComputedStyle(Phot).height
+                    heightFull = parseInt(hei);
+
+                    Kof = heightFull / data.SizeDis[1]
+
+                    inBlock.style.width = Kof * data.SizeDis[0] + "px"
+
+                    xDown = data.DownSize[0] * Kof
+                    yDown = data.DownSize[1] * Kof
+
+
+                    inRelativeDown.style.top = data.YPrDown + '%'
+                    inRelativeDown.style.left = data.XPrDown + '%'
+
+                    IMDown.style.width = xDown + "px"
+                    IMDown.style.height = yDown + "px"
+
+                })
+
+        } else {
+            alert('Выберите файл для загрузки.');
+        }
+    }
+
 
     function UpDown(k) {
         let inRelative = document.querySelector(".inin")
@@ -611,8 +768,44 @@
 
     }
 
-    function RightLeft(k){
+    function RightLeft(k) {
         let inRelative = document.querySelector(".inin")
+        left = parseFloat(window.getComputedStyle(inRelative).left);
+        left += 1 * k
+        inRelative.style.left = left + 'px'
+    }
+
+    function UpDownDown(k) {
+        let inRelative = document.querySelector(".ininDown")
+        left = parseFloat(window.getComputedStyle(inRelative).top);
+        left += 2 * -k
+        console.log(left)
+        inRelative.style.top = left + 'px'
+    }
+
+    function WithShortDown(k) {
+        let IM = document.getElementById("dadDown")
+        let inRelative = document.querySelector(".ininDown")
+
+        left = parseFloat(window.getComputedStyle(inRelative).left);
+
+
+        Hie = parseFloat(window.getComputedStyle(IM).height);
+        Wid = parseFloat(window.getComputedStyle(IM).width);
+
+
+        Hie += 2 * k
+        Wid += 2 * k
+        left += 1 * -k
+
+        IM.style.height = Hie + 'px'
+        IM.style.width = Wid + 'px'
+        inRelative.style.left = left + 'px'
+
+    }
+
+    function RightLeftDown(k) {
+        let inRelative = document.querySelector(".ininDown")
         left = parseFloat(window.getComputedStyle(inRelative).left);
         left += 1 * k
         inRelative.style.left = left + 'px'
@@ -643,33 +836,28 @@
     }
 
     function Add_offsetDown() {
-        DownoffsetY++
-        uploadPhoto()
+        UpDownDown(1)
     }
 
     function Minuse_offsetDown() {
-        DownoffsetY--
-        uploadPhoto()
+        UpDownDown(-1)
+
     }
 
     function Add_WithDown() {
-        DownWith += 50
-        uploadPhoto()
+        WithShortDown(1)
     }
 
     function Minuse_WithDown() {
-        DownWith -= 50
-        uploadPhoto()
+        WithShortDown(-1)
     }
 
     function Add_offsetxDown() {
-        DownoffsetX += 1
-        uploadPhoto()
+        RightLeftDown(1)
     }
 
     function Minuse_offsetxDown() {
-        DownoffsetX -= 1
-        uploadPhoto()
+        RightLeftDown(-1)
     }
 </script>
 </html>

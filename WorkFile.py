@@ -53,10 +53,9 @@ mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 
-def body_Detect(Index, frame, landmarks, offset_Y, withTop, offsetXTop):
+def body_Detect(Index, frame, landmarks):
     hie = time.time()
     ySize, xSize = frame.shape[:2]
-    massSize = [xSize, ySize]
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
@@ -71,7 +70,7 @@ def body_Detect(Index, frame, landmarks, offset_Y, withTop, offsetXTop):
 
     hip_left = landmarks[23]
 
-    distanceX = int((shoulder_left[0] - shoulder_right[0]) * withTop)
+    distanceX = int((shoulder_left[0] - shoulder_right[0]) * Top_With[Index])
     distanceY = int((hip_left.y - shoulder_left[1]) * int(Top_Height[Index]))
 
     if distanceX <= 0:
@@ -83,8 +82,8 @@ def body_Detect(Index, frame, landmarks, offset_Y, withTop, offsetXTop):
     ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * Top_HeightMult[Index])
 
     new_size = (max(100, xSizeForNew), max(100, ySizeForNew))
-    offsetX = int(((distanceX / 100) * offsetXTop) * ProcentSizeXOffSet)
-    offsetY = int(((distanceY / 100) * offset_Y) * ProcentSizeYOffSet)
+    offsetX = int(((distanceX / 100) * Top_Offset_To_X[Index]) * ProcentSizeXOffSet)
+    offsetY = int(((distanceY / 100) * Top_Offset_To_Y[Index]) * ProcentSizeYOffSet)
 
     PosYSholder = shoulder_left[1] * ySize
     center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
@@ -93,16 +92,15 @@ def body_Detect(Index, frame, landmarks, offset_Y, withTop, offsetXTop):
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
 
     # Освободить память: удалить ненужные переменные
-    print(time.time() - hie)
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
 
     del LeftTop, LeftRight, shoulder_left, shoulder_right, hip_left, distanceX, distanceY, xSizeForNew, ySizeForNew, offsetX, offsetY, PosYSholder
 
-    return new_size, overlay_position, XPr, YPr, massSize
+    return new_size, XPr, YPr
 
 
-def leg_Detect(Index, frame, landmarks, offset_Y, withDown, offsetXDown):
+def leg_Detect(Index, frame, landmarks):
 
     ySize, xSize = frame.shape[:2]
 
@@ -115,9 +113,8 @@ def leg_Detect(Index, frame, landmarks, offset_Y, withDown, offsetXDown):
     hip_right = np.array([landmarks[pose_landmark.RIGHT_HIP].x, landmarks[pose_landmark.RIGHT_HIP].y])
     Heel_LeftY = landmarks[pose_landmark.LEFT_ANKLE].y
 
-    # Освободить память: удалить объект landmarks
 
-    distanceX = int(((hip_left[0] - hip_right[0]) * (withDown) * 1.2))
+    distanceX = int(((hip_left[0] - hip_right[0]) * (Down_With[Index]) * 1.2))
     distanceY = int((Heel_LeftY - hip_left[0]) * (Down_Height[Index]))
 
     if distanceX <= 0:
@@ -130,18 +127,19 @@ def leg_Detect(Index, frame, landmarks, offset_Y, withDown, offsetXDown):
 
     new_size = (max(100, xSizeForNew), max(100, ySizeForNew))
 
-    offsetY = int((distanceY / 100) * offset_Y * ProcentSizeYOffset)
-    offsetX = int((distanceX / 100) * offsetXDown * ProcentSizeXOffSet)
+    offsetY = int((distanceY / 100) * Down_Offset_To_Y[Index] * ProcentSizeYOffset)
+    offsetX = int((distanceX / 100) * Down_Offset_To_X[Index] * ProcentSizeXOffSet)
 
     center_x = int((hip_left[0] + landmarks[pose_landmark.RIGHT_HIP].x) / 2 * frame.shape[1]) + offsetX
     center_y = int(((hip_left[1] + landmarks[pose_landmark.LEFT_HIP].y) / 2) * frame.shape[0]) - offsetY
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
-
+    XPr = (overlay_position[0] / xSize) * 100
+    YPr = (overlay_position[1] / ySize) * 100
     # Освободить память: удалить ненужные переменные
     del landmarks, hip_left, hip_right, Heel_LeftY, distanceX, distanceY, ClothYsize, ClothXsize, xSizeForNew, ySizeForNew, offsetY, offsetX, center_x, center_y
 
-    return new_size, overlay_position
+    return new_size, XPr, YPr
 
 
 def delAll():
@@ -154,48 +152,32 @@ def delAll():
             except:
                 print(i)
 
-def resImage(img, indexT, indexD, offsetTop, offset_Down, with_Down, with_Top, offsetX_Top, offsetDownX, t):
-    tN = time.time()
+def resImage(img, indexT, indexD):
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
     image = cv2.imread(img)
 
-
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     results = pose.process(rgb_image)
-    XPr, YPr, ySizeDis, TopSize = 0, 0, 0, 0
+    XPr, YPr, TopSize = 0, 0, 0
+    XPrDown, YPrDown, DownSize = 0, 0, 0
+
+    ySize, xSize = image.shape[:2]
+    massSize = [xSize, ySize]
+
     if results.pose_landmarks:
         landmarks = results.pose_landmarks.landmark
-        annotated_image = rgb_image.copy()
-        annotated_image_bgr = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
 
-        frame_pil = Image.fromarray(cv2.cvtColor(annotated_image_bgr, cv2.COLOR_BGR2RGB))
         if indexT != -1:
-            TopSize, Top_overlay_position, XPr, YPr, ySizeDis = body_Detect(indexT, image, landmarks,
-                                                                                           Top_Offset_To_Y[
-                                                                                               indexT] + int(offsetTop),
-                                                                                           Top_With[indexT] + int(
-                                                                                               with_Top),
-                                                                                           Top_Offset_To_X[
-                                                                                               indexT] + int(
-                                                                                               offsetX_Top))
+            TopSize, XPr, YPr = body_Detect(indexT, image, landmarks)
 
         if indexD != -1:
-            DownSize, Down_overlay_position = leg_Detect(indexD, image, landmarks,
-                                                         Down_Offset_To_Y[indexD] + int(offset_Down),
-                                                         Down_With[indexD] + int(with_Down),
-                                                         Down_Offset_To_X[indexD] + int(offsetDownX))
-            Down_overlay_image_resized = Down_overlay_image[indexD].resize(DownSize)
-
-        if indexD != -1:
-            frame_pil.paste(Down_overlay_image_resized, Down_overlay_position, Down_overlay_image_resized)
+            DownSize, XPrDown, YPrDown = leg_Detect(indexD, image, landmarks)
 
 
 
-        path = f"static/{indexD} {indexT} {with_Top} {offsetX_Top} {offsetDownX} {offsetTop} {offset_Down} {with_Down}{os.path.basename(img)}"
-        delAll()
-        frame_pil.save(path)
+
 
         if os.path.isfile(img):
             try:
@@ -203,27 +185,14 @@ def resImage(img, indexT, indexD, offsetTop, offset_Down, with_Down, with_Top, o
             except:
                 print()
 
-        print(time.time() - t)
-        print(time.time() - tN)
+
         pose.close()
-        del mp_pose
-        del landmarks
-        del image
-        del rgb_image
-        del pose
-        del results
-        del annotated_image
-        del annotated_image_bgr
-        del frame_pil
-
-
-        if indexD != -1:
-            del Down_overlay_image_resized, Down_overlay_position, DownSize
 
         gc.collect()
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        return path, XPr, YPr, ySizeDis, TopSize
+
+        return XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize
     else:
         os.remove(img)
         pose.close()
