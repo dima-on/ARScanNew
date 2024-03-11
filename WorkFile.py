@@ -3,29 +3,25 @@ import mediapipe as mp
 from PIL import Image
 import os
 import numpy as np
-import time
 import gc
+import requests
+from io import BytesIO
 
 
-Down_Image_Path = ['static/Photo/Down/legs.png', 'static/Photo/Down/leggins-1.png']
-Top_Image_Path = ['static/Photo/Top/T_Short_White.png', 'static/Photo/Top/T_Short_Red.png', 'static/Photo/Top/T_Short_EnerGym.png', 'static/Photo/Top/Coft-removebg-preview.png', 'static/Photo/Top/top-1.png', 'static/Photo/Top/te.png']
+Down_Image_Path = ['static/Photo/Down/legs.png', 'static/Photo/Down/leggins-1.png', 'static/Photo/Down/Down.png']
+Top_Image_Path = ['static/Photo/Top/T_Short_Red.png', 'static/Photo/Top/T_Short_EnerGym.png', 'static/Photo/Top/Coft-removebg-preview.png', 'static/Photo/Top/top-1.png', 'static/Photo/Top/te.png', "static/Photo/Top/Top.png"]
 
+Top_Offset_To_Y = [15, 2.8, 30, 13, 8, 20]
+Top_Offset_To_X = [-2, -1, -4, -3, -4, 0]
 
+Top_With = [1150, 1300, 1280, 800, 1150, 1100]
+Top_HeightMult = [-0.15, -0.15, 0, -0.15, -0.25, -0.15]
 
+Down_Offset_To_Y = [-30, -10, -100]
+Down_Offset_To_X = [0, -1, 0]
 
-Top_Offset_To_Y = [10, 10, 3, 0, 55, 0]
-Top_Offset_To_X = [0, -2, -1, -2, -3, 0]
-
-Top_With = [1050, 1150, 1300, 1280, 400, 1000]
-Top_Height = [550, 550, 1000, 820, 300, 500]
-Top_HeightMult = [0, -0.15, -0.15, 0, 0, 0]
-
-
-Down_Offset_To_Y = [-30, -10]
-Down_Offset_To_X = [0, -1]
-
-Down_With = [3200, 1100]
-Down_Height = [600, 450]
+Down_With = [1250, 1100, 1000]
+Down_HeightMult = [0, 0, -0.2]
 
 Down_overlay_image = []
 Top_overlay_image = []
@@ -53,14 +49,22 @@ mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 
-def body_Detect(Index, frame, landmarks):
-    hie = time.time()
+def get_image_size(url):
+    response = requests.get(url)
+    image_data = response.content
+
+    # Открытие изображения с помощью PIL
+    image = Image.open(BytesIO(image_data))
+
+    # Получение размеров изображения
+    width, height = image.size
+    return width, height
+def body_Detect(Index, frame, landmarks, array):
     ySize, xSize = frame.shape[:2]
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
-    ProcentSizeXOffSet = (xSize / XFSize)
-    ProcentSizeYOffSet = (ySize / YFSize)
+
 
     LeftTop = (landmarks[23].y - landmarks[11].y) / 10
     LeftRight = (landmarks[24].y - landmarks[12].y) / 10
@@ -68,22 +72,21 @@ def body_Detect(Index, frame, landmarks):
     shoulder_left = np.array([landmarks[11].x, landmarks[11].y - LeftTop])
     shoulder_right = np.array([landmarks[12].x, landmarks[12].y - LeftRight])
 
-    hip_left = landmarks[23]
 
-    distanceX = int((shoulder_left[0] - shoulder_right[0]) * Top_With[Index])
-    distanceY = int((hip_left.y - shoulder_left[1]) * int(Top_Height[Index]))
+    distanceX = int((shoulder_left[0] - shoulder_right[0]) * array[3][Index])
+
 
     if distanceX <= 0:
         distanceX *= -1
 
-    ClothYsize, ClothXsize = Top_overlay_image[Index].size
+    ClothYsize, ClothXsize = get_image_size(str(array[0][Index]))
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * Top_HeightMult[Index])
+    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[4][Index])
 
-    new_size = (max(100, xSizeForNew), max(100, ySizeForNew))
-    offsetX = int(((distanceX / 100) * Top_Offset_To_X[Index]) * ProcentSizeXOffSet)
-    offsetY = int(((distanceY / 100) * Top_Offset_To_Y[Index]) * ProcentSizeYOffSet)
+    new_size = (xSizeForNew, ySizeForNew)
+    offsetX = int(((xSizeForNew / 100) * array[2][Index]))
+    offsetY = int(((ySizeForNew / 100) * array[1][Index]))
 
     PosYSholder = shoulder_left[1] * ySize
     center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
@@ -95,49 +98,55 @@ def body_Detect(Index, frame, landmarks):
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
 
-    del LeftTop, LeftRight, shoulder_left, shoulder_right, hip_left, distanceX, distanceY, xSizeForNew, ySizeForNew, offsetX, offsetY, PosYSholder
+    del LeftTop, LeftRight, shoulder_left, shoulder_right, distanceX, xSizeForNew, ySizeForNew, offsetX, offsetY, PosYSholder
 
     return new_size, XPr, YPr
 
 
-def leg_Detect(Index, frame, landmarks):
+def leg_Detect(Index, frame, landmarks, array):
 
     ySize, xSize = frame.shape[:2]
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
-    ProcentSizeXOffSet = (xSize / XFSize)
-    ProcentSizeYOffset = (ySize / YFSize)
+
     pose_landmark = mp_pose.PoseLandmark
+
     hip_left = np.array([landmarks[pose_landmark.LEFT_HIP].x, landmarks[pose_landmark.LEFT_HIP].y])
     hip_right = np.array([landmarks[pose_landmark.RIGHT_HIP].x, landmarks[pose_landmark.RIGHT_HIP].y])
-    Heel_LeftY = landmarks[pose_landmark.LEFT_ANKLE].y
+    Knee_left = np.array([landmarks[pose_landmark.LEFT_KNEE].x, landmarks[pose_landmark.LEFT_KNEE].y])
 
-
-    distanceX = int(((hip_left[0] - hip_right[0]) * (Down_With[Index]) * 1.2))
-    distanceY = int((Heel_LeftY - hip_left[0]) * (Down_Height[Index]))
+    distanceX = int((hip_left[0] - hip_right[0]) * (array[8][Index]))
+    distanceY = int((hip_left[1] - Knee_left[1]) * (array[8][Index]))
 
     if distanceX <= 0:
         distanceX *= -1
+    if distanceY <= 0:
+        distanceY *= -1
+    KofForSize = distanceY / distanceX
 
-    ClothYsize, ClothXsize = Top_overlay_image[Index].size
+    ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(((xSizeForNew * ClothYsize) / ClothXsize) + ((xSizeForNew * ClothYsize) / ClothXsize) * 0)
+    ySizeForNew = int(((xSizeForNew * ClothXsize) / ClothYsize) + ((xSizeForNew * ClothXsize) / ClothYsize) * array[9][Index] * KofForSize)
 
-    new_size = (max(100, xSizeForNew), max(100, ySizeForNew))
+    print(xSizeForNew, ySizeForNew)
 
-    offsetY = int((distanceY / 100) * Down_Offset_To_Y[Index] * ProcentSizeYOffset)
-    offsetX = int((distanceX / 100) * Down_Offset_To_X[Index] * ProcentSizeXOffSet)
+    new_size = (xSizeForNew, ySizeForNew)
+
+    offsetY = int((ySizeForNew / 100) * array[6][Index])
+    offsetX = int((distanceX / 100) * array[7][Index])
 
     center_x = int((hip_left[0] + landmarks[pose_landmark.RIGHT_HIP].x) / 2 * frame.shape[1]) + offsetX
-    center_y = int(((hip_left[1] + landmarks[pose_landmark.LEFT_HIP].y) / 2) * frame.shape[0]) - offsetY
+    center_y = int((hip_left[1] + (ySizeForNew / 2))) - offsetY
+
+
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
     # Освободить память: удалить ненужные переменные
-    del landmarks, hip_left, hip_right, Heel_LeftY, distanceX, distanceY, ClothYsize, ClothXsize, xSizeForNew, ySizeForNew, offsetY, offsetX, center_x, center_y
+    del landmarks, hip_left, hip_right, distanceX, ClothYsize, ClothXsize, xSizeForNew, ySizeForNew, offsetY, offsetX, center_x, center_y
 
     return new_size, XPr, YPr
 
@@ -152,7 +161,12 @@ def delAll():
             except:
                 print(i)
 
-def resImage(img, indexT, indexD):
+def resImage(img, indexT, indexD, tag):
+    path = "ShopBD/" + str(tag) + ".txt"
+    with open(path, 'r') as file:
+        content = file.read()
+    array = eval(content)
+
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
     image = cv2.imread(img)
@@ -170,14 +184,10 @@ def resImage(img, indexT, indexD):
         landmarks = results.pose_landmarks.landmark
 
         if indexT != -1:
-            TopSize, XPr, YPr = body_Detect(indexT, image, landmarks)
+            TopSize, XPr, YPr = body_Detect(indexT, image, landmarks, array)
 
         if indexD != -1:
-            DownSize, XPrDown, YPrDown = leg_Detect(indexD, image, landmarks)
-
-
-
-
+            DownSize, XPrDown, YPrDown = leg_Detect(indexD, image, landmarks, array)
 
         if os.path.isfile(img):
             try:
@@ -187,6 +197,8 @@ def resImage(img, indexT, indexD):
 
 
         pose.close()
+
+        print(DownSize)
 
         gc.collect()
         cv2.waitKey(0)

@@ -7,15 +7,28 @@
         let TopIndex = -1
         let DownIndex = -1
 
+        let hashtag = 0
         function StartSite() {
+            var currentURL = window.location.href;
+
+            var fragments = currentURL.split("#");
+
+            if (fragments.length > 1) {
+                hashtag = fragments[fragments.length - 1];
+
+            }
+
+
             let Top = document.getElementById("Top")
             let Down = document.getElementById("Down")
             Down.style.display = "none"
             Top.style.display = "none"
-            console.log("dwa")
+            const formData = new FormData();
+            formData.append('tag', hashtag);
+
             fetch('/StartProgram', {
                 method: 'POST',
-
+                body: formData
             })
                 .then(response => response.json())
                 .then(data => {
@@ -68,7 +81,7 @@
             console.log(Index)
             document.getElementById("dad").src = lin
             ChangeTop()
-            uploadPhoto()
+            uploadPhotoTop()
         }
 
         function DownOn(Index, lin) {
@@ -76,7 +89,7 @@
             console.log(Index)
             document.getElementById("dadDown").src = lin
             ChangeDown()
-            uploadPhoto()
+            uploadPhotoDown()
         }
     </script>
     <style>
@@ -535,7 +548,6 @@
         }, 700);
 
 
-
         let Top = document.getElementById("Top")
         let Down = document.getElementById("Down")
         Down.style.display = "flex"
@@ -576,6 +588,7 @@
         if (file) {
             const formData = new FormData();
             formData.append('photo', file);
+            formData.append('tag', hashtag);
             formData.append('TopIndex', TopIndex);
             formData.append('DownIndex', DownIndex);
 
@@ -593,7 +606,12 @@
                     hei = window.getComputedStyle(Phot).height
                     heightFull = parseInt(hei);
 
+                    wie = window.getComputedStyle(inBlock).width
+                    wieFull = parseInt(wie);
+
                     Kof = heightFull / data.SizeDis[1]
+                    KofX = wieFull / data.SizeDis[0]
+                    console.log(KofX, data.SizeDis[0])
 
                     inBlock.style.width = Kof * data.SizeDis[0] + "px"
 
@@ -641,6 +659,7 @@
         if (file) {
             const formData = new FormData();
             formData.append('photo', file);
+            formData.append('tag', hashtag);
             formData.append('TopIndex', TopIndex);
             formData.append('DownIndex', DownIndex);
 
@@ -664,7 +683,6 @@
 
                     x = data.TopSize[0] * Kof
                     y = data.TopSize[1] * Kof
-
 
 
                     inRelative.style.top = data.YPr + '%'
@@ -700,6 +718,7 @@
         if (file) {
             const formData = new FormData();
             formData.append('photo', file);
+            formData.append('tag', hashtag);
             formData.append('TopIndex', TopIndex);
             formData.append('DownIndex', DownIndex);
 

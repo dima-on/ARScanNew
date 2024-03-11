@@ -1,0 +1,10 @@
+[['https://i.ibb.co/HHWPdxr/T-Short-Red.png', 'https://i.ibb.co/6WNSK7t/T-Short-Ener-Gym.png', 'https://i.ibb.co/0c2ZQ9z/Coft-removebg-preview.png', 'https://i.ibb.co/KrHzvK9/top-1.png', 'https://i.ibb.co/P5rRpzz/te.png', "https://i.ibb.co/ZJ7LCcf/Top.png"], 
+[7, 2.8, 15, 18, 2, 20],
+[0, -1, -2, -3, -2, 0],
+[1150, 1300, 1280, 800, 1150, 1100],
+[-0.15, -0.15, 0, -0.15, -0.25, -0.15],
+['https://i.ibb.co/HNmQQ0z/leggins-1.png', 'https://i.ibb.co/6Hn6dqK/Down.png'],
+[65, -100],
+[-1, 0],
+[1100, 1300],
+[-0.2, 3.7]]
