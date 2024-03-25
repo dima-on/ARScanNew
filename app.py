@@ -30,9 +30,10 @@ def lick():
 
 
         upload_folder = 'static/Input/'
-        uploaded_file.save(upload_folder + uploaded_file.filename)
+        uploaded_file.save(upload_folder + "test.png")
 
-        path = upload_folder + uploaded_file.filename
+
+        path = upload_folder + "test.png"
         XPr, YPr, SizeDis, TopSize, XPrDown, YPrDown, DownSize = WorkFile.resImage(path, int(TopIndex), int(DownIndex), tag)
 
     return jsonify({'XPr': XPr, 'YPr': YPr, 'SizeDis': SizeDis, 'TopSize': TopSize, 'XPrDown': XPrDown, 'YPrDown': YPrDown, 'DownSize': DownSize})
@@ -51,5 +52,5 @@ def StartAll():
     Down_Image_Path = array[5]
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=443, ssl_context=context)
-    #app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=443, ssl_context=context)
+    app.run(host='0.0.0.0', port=5000)

@@ -581,75 +581,8 @@
 
     function uploadPhoto() {
 
-        const fileInput = document.getElementById('test');
-
-        const IM = document.getElementById('dad')
-        const IMDown = document.getElementById('dadDown')
-
-        let inBlock = document.querySelector('.in');
-
-        let inRelative = document.querySelector(".inin")
-        let inRelativeDown = document.querySelector(".ininDown")
-
-        let Phot = document.querySelector(".Phot")
-
-        const file = fileInput.files[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('photo', file);
-            formData.append('tag', hashtag);
-            formData.append('TopIndex', TopIndex);
-            formData.append('DownIndex', DownIndex);
-
-            fetch('/lick', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-
-
-                    document.getElementById('testImage').src = URL.createObjectURL(file);
-                    imG = document.getElementById('testImage')
-
-                    hei = window.getComputedStyle(Phot).height
-                    heightFull = parseInt(hei);
-
-                    wie = window.getComputedStyle(inBlock).width
-                    wieFull = parseInt(wie);
-
-                    Kof = heightFull / data.SizeDis[1]
-                    KofX = wieFull / data.SizeDis[0]
-                    console.log(KofX, data.SizeDis[0])
-
-                    inBlock.style.width = Kof * data.SizeDis[0] + "px"
-
-                    x = data.TopSize[0] * Kof
-                    y = data.TopSize[1] * Kof
-
-                    xDown = data.DownSize[0] * Kof
-                    yDown = data.DownSize[1] * Kof
-
-
-                    inRelative.style.top = data.YPr + '%'
-                    inRelative.style.left = data.XPr + '%'
-
-                    inRelativeDown.style.top = data.YPrDown + '%'
-                    inRelativeDown.style.left = data.XPrDown + '%'
-
-                    IM.style.width = x + "px"
-                    IM.style.height = y + "px"
-
-                    IMDown.style.width = xDown + "px"
-                    IMDown.style.height = yDown + "px"
-
-                })
-
-        } else {
-            alert('Выберите файл для загрузки.');
-        }
-
-
+        uploadPhotoTop()
+        uploadPhotoDown()
     }
 
     function uploadPhotoTop() {

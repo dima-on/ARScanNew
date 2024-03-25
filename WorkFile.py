@@ -36,7 +36,7 @@ def BeginFun():
         Down_overlay_image.append(1)
         Down_overlay_image[Count_For] = Image.open(im)
         Count_For += 1
-        
+
 
     Count_For = 0
     for im in Top_Image_Path:
@@ -114,28 +114,22 @@ def leg_Detect(Index, frame, landmarks, array):
 
     hip_left = np.array([landmarks[pose_landmark.LEFT_HIP].x, landmarks[pose_landmark.LEFT_HIP].y])
     hip_right = np.array([landmarks[pose_landmark.RIGHT_HIP].x, landmarks[pose_landmark.RIGHT_HIP].y])
-    Knee_left = np.array([landmarks[pose_landmark.LEFT_KNEE].x, landmarks[pose_landmark.LEFT_KNEE].y])
 
     distanceX = int((hip_left[0] - hip_right[0]) * (array[8][Index]))
-    distanceY = int((hip_left[1] - Knee_left[1]) * (array[8][Index]))
 
     if distanceX <= 0:
         distanceX *= -1
-    if distanceY <= 0:
-        distanceY *= -1
-    KofForSize = distanceY / distanceX
+
 
     ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(((xSizeForNew * ClothXsize) / ClothYsize) + ((xSizeForNew * ClothXsize) / ClothYsize) * array[9][Index] * KofForSize)
-
-    print(xSizeForNew, ySizeForNew)
+    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[9][Index])
 
     new_size = (xSizeForNew, ySizeForNew)
 
     offsetY = int((ySizeForNew / 100) * array[6][Index])
-    offsetX = int((distanceX / 100) * array[7][Index])
+    offsetX = int((xSizeForNew / 100) * array[7][Index])
 
     center_x = int((hip_left[0] + landmarks[pose_landmark.RIGHT_HIP].x) / 2 * frame.shape[1]) + offsetX
     center_y = int((hip_left[1] + (ySizeForNew / 2))) - offsetY
@@ -143,9 +137,10 @@ def leg_Detect(Index, frame, landmarks, array):
 
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
+    print(overlay_position)
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
-    # Освободить память: удалить ненужные переменные
+
     del landmarks, hip_left, hip_right, distanceX, ClothYsize, ClothXsize, xSizeForNew, ySizeForNew, offsetY, offsetX, center_x, center_y
 
     return new_size, XPr, YPr
@@ -198,7 +193,6 @@ def resImage(img, indexT, indexD, tag):
 
         pose.close()
 
-        print(DownSize)
 
         gc.collect()
         cv2.waitKey(0)
