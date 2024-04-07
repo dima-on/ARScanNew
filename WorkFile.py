@@ -90,7 +90,7 @@ def body_Detect(Index, frame, landmarks, array):
 
     PosYSholder = shoulder_left[1] * ySize
     center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
-    center_y = int((PosYSholder + (ySizeForNew / 2))) - offsetY
+    center_y = int(((shoulder_left[1] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y) / 2) * frame.shape[0]) - offsetY
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
 
@@ -109,6 +109,7 @@ def leg_Detect(Index, frame, landmarks, array):
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
+    ProcentSizeY = (1 - ySize / YFSize)
 
     pose_landmark = mp_pose.PoseLandmark
 
@@ -120,7 +121,7 @@ def leg_Detect(Index, frame, landmarks, array):
     if distanceX <= 0:
         distanceX *= -1
 
-
+    print(ProcentSizeY)
     ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
@@ -132,12 +133,11 @@ def leg_Detect(Index, frame, landmarks, array):
     offsetX = int((xSizeForNew / 100) * array[7][Index])
 
     center_x = int((hip_left[0] + landmarks[pose_landmark.RIGHT_HIP].x) / 2 * frame.shape[1]) + offsetX
-    center_y = int((hip_left[1] + (ySizeForNew / 2))) - offsetY
+    center_y = int((hip_left[1] + landmarks[pose_landmark.RIGHT_HIP].y) / 2 * frame.shape[0] - offsetY)
 
 
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
-    print(overlay_position)
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
 
