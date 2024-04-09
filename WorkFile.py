@@ -8,41 +8,8 @@ import requests
 from io import BytesIO
 
 
-Down_Image_Path = ['static/Photo/Down/legs.png', 'static/Photo/Down/leggins-1.png', 'static/Photo/Down/Down.png']
-Top_Image_Path = ['static/Photo/Top/T_Short_Red.png', 'static/Photo/Top/T_Short_EnerGym.png', 'static/Photo/Top/Coft-removebg-preview.png', 'static/Photo/Top/top-1.png', 'static/Photo/Top/te.png', "static/Photo/Top/Top.png"]
-
-Top_Offset_To_Y = [15, 2.8, 30, 13, 8, 20]
-Top_Offset_To_X = [-2, -1, -4, -3, -4, 0]
-
-Top_With = [1150, 1300, 1280, 800, 1150, 1100]
-Top_HeightMult = [-0.15, -0.15, 0, -0.15, -0.25, -0.15]
-
-Down_Offset_To_Y = [-30, -10, -100]
-Down_Offset_To_X = [0, -1, 0]
-
-Down_With = [1250, 1100, 1000]
-Down_HeightMult = [0, 0, -0.2]
-
-Down_overlay_image = []
-Top_overlay_image = []
 
 
-
-def BeginFun():
-
-
-    Count_For = 0
-    for im in Down_Image_Path:
-        Down_overlay_image.append(1)
-        Down_overlay_image[Count_For] = Image.open(im)
-        Count_For += 1
-
-
-    Count_For = 0
-    for im in Top_Image_Path:
-        Top_overlay_image.append(1)
-        Top_overlay_image[Count_For] = Image.open(im)
-        Count_For += 1
 
 
 mp_pose = mp.solutions.pose
@@ -59,6 +26,7 @@ def get_image_size(url):
     # Получение размеров изображения
     width, height = image.size
     return width, height
+
 def body_Detect(Index, frame, landmarks, array):
     ySize, xSize = frame.shape[:2]
 
@@ -90,7 +58,7 @@ def body_Detect(Index, frame, landmarks, array):
 
     PosYSholder = shoulder_left[1] * ySize
     center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
-    center_y = int((PosYSholder + (ySizeForNew / 2))) - offsetY
+    center_y = int(((shoulder_left[1] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y) / 2) * frame.shape[0]) - offsetY
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
 
@@ -109,6 +77,7 @@ def leg_Detect(Index, frame, landmarks, array):
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
+    ProcentSizeY = (1 - ySize / YFSize)
 
     pose_landmark = mp_pose.PoseLandmark
 
@@ -120,7 +89,7 @@ def leg_Detect(Index, frame, landmarks, array):
     if distanceX <= 0:
         distanceX *= -1
 
-
+    print(ProcentSizeY)
     ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
@@ -132,12 +101,11 @@ def leg_Detect(Index, frame, landmarks, array):
     offsetX = int((xSizeForNew / 100) * array[7][Index])
 
     center_x = int((hip_left[0] + landmarks[pose_landmark.RIGHT_HIP].x) / 2 * frame.shape[1]) + offsetX
-    center_y = int((hip_left[1] + (ySizeForNew / 2))) - offsetY
+    center_y = int((hip_left[1] + landmarks[pose_landmark.RIGHT_HIP].y) / 2 * frame.shape[0] - offsetY)
 
 
 
     overlay_position = (center_x - new_size[0] // 2, center_y - new_size[1] // 2)
-    print(overlay_position)
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
 

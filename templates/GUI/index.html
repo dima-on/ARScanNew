@@ -79,7 +79,7 @@
         function TopOn(Index, lin) {
             TopIndex = Index
             console.log(Index)
-            document.getElementById("dad").src = lin
+            document.getElementById("top_cloth_img").src = lin
             ChangeTop()
             uploadPhotoTop()
         }
@@ -87,13 +87,13 @@
         function DownOn(Index, lin) {
             DownIndex = Index
             console.log(Index)
-            document.getElementById("dadDown").src = lin
+            document.getElementById("down_cloth_img").src = lin
             ChangeDown()
             uploadPhotoDown()
         }
     </script>
     <style>
-        #Titel{
+        #Tittle{
             font-family: Georgia;
             font-size: 30px;
             text-align: center;
@@ -293,7 +293,7 @@
             margin-top: 20px;
         }
 
-        #dad {
+        #top_cloth_img {
 
             width: 0px;
             height: 0px;
@@ -301,12 +301,12 @@
             pointer-events: none;
         }
 
-        #dad.active {
+        #top_cloth_img.active {
             box-shadow: 0 0 10px 5px rgb(35, 161, 206);
 
         }
 
-        #dadDown {
+        #down_cloth_img {
 
             width: 0px;
             height: 0px;
@@ -314,7 +314,7 @@
             pointer-events: none;
         }
 
-        #dadDown.active {
+        #down_cloth_img.active {
             box-shadow: 0 0 10px 5px rgb(35, 161, 206);
 
         }
@@ -399,7 +399,7 @@
                 height: 30px;
                 background: black;
                 color: white;
-                margin: 0 8px;
+                margin: 0 4px;
                 border: 0;
                 padding: 0;
                 display: flex;
@@ -419,7 +419,7 @@
                 padding: 0;
                 display: flex;
                 font-size: 35px;
-                margin: 0 8px;
+                margin: 0 4px;
                 border-radius: 10px;
             }
 
@@ -440,7 +440,7 @@
 </head>
 <body onload="StartSite()">
 
-<h1 id="Titel">Dress Room</h1>
+<h1 id="Tittle">Dress Room</h1>
 
 <div class="Up">
     <div class="Phot" id="Photo">
@@ -449,10 +449,10 @@
              alt="Your Image">
         <div class="in">
             <div class="inin">
-                <img id="dad" src="static/Photo/Top/T_Short_Red.png" alt="">
+                <img id="top_cloth_img" src="static/Photo/Top/T_Short_Red.png" alt="">
             </div>
             <div class="ininDown">
-                <img id="dadDown" src="static/Photo/Top/T_Short_Red.png" alt="">
+                <img id="down_cloth_img" src="static/Photo/Top/T_Short_Red.png" alt="">
             </div>
         </div>
 
@@ -495,6 +495,9 @@
             <img class="Big" onclick="Add_WithTop()" src="static/Photo/Other/Out.png" alt="">
             <img class="Big" onclick="Minuse_WithTop()" src="static/Photo/Other/In.png" alt="">
 
+            <img class="min" onclick="top_delete()" src="static/Photo/Other/delete.png" alt="">
+
+
 
         </div>
         <div id="Down" class="button">
@@ -506,6 +509,9 @@
 
             <img class="Big" onclick="Add_WithDown()" src="static/Photo/Other/Out.png" alt="">
             <img class="Big" onclick="Minuse_WithDown()" src="static/Photo/Other/In.png" alt="">
+
+            <img class="min" onclick="down_delete()" src="static/Photo/Other/delete.png" alt="">
+
 
 
         </div>
@@ -550,7 +556,7 @@
 
 
     function ChangeDown() {
-        var dad = document.getElementById('dadDown');
+        var dad = document.getElementById('down_cloth_img');
         dad.classList.add('active');
         timeoutId = setTimeout(function () {
             dad.classList.remove('active');
@@ -565,7 +571,7 @@
     }
 
     function ChangeTop() {
-        var dad = document.getElementById('dad');
+        var dad = document.getElementById('top_cloth_img');
         dad.classList.add('active');
         timeoutId = setTimeout(function () {
             dad.classList.remove('active');
@@ -589,7 +595,7 @@
 
         const fileInput = document.getElementById('test');
 
-        const IM = document.getElementById('dad')
+        const IM = document.getElementById('top_cloth_img')
 
         let inBlock = document.querySelector('.in');
 
@@ -633,6 +639,7 @@
 
                     IM.style.width = x + "px"
                     IM.style.height = y + "px"
+                    IM.style.opacity = "1"
 
 
                 })
@@ -648,7 +655,7 @@
 
         const fileInput = document.getElementById('test');
 
-        const IMDown = document.getElementById('dadDown')
+        const IMDown = document.getElementById('down_cloth_img')
 
         let inBlock = document.querySelector('.in');
 
@@ -692,6 +699,8 @@
                     IMDown.style.width = xDown + "px"
                     IMDown.style.height = yDown + "px"
 
+                    IMDown.style.opacity = "1"
+
                 })
 
         } else {
@@ -709,7 +718,7 @@
     }
 
     function WithShort(k) {
-        let IM = document.getElementById("dad")
+        let IM = document.getElementById("top_cloth_img")
         let inRelative = document.querySelector(".inin")
 
         left = parseFloat(window.getComputedStyle(inRelative).left);
@@ -745,7 +754,7 @@
     }
 
     function WithShortDown(k) {
-        let IM = document.getElementById("dadDown")
+        let IM = document.getElementById("down_cloth_img")
         let inRelative = document.querySelector(".ininDown")
 
         left = parseFloat(window.getComputedStyle(inRelative).left);
@@ -819,6 +828,16 @@
 
     function Minuse_offsetxDown() {
         RightLeftDown(-1)
+    }
+
+    function top_delete(){
+        var top_img = document.getElementById('top_cloth_img');
+        top_img.style.opacity = "0"
+    }
+
+    function down_delete(){
+        var down_img = document.getElementById('down_cloth_img');
+        down_img.style.opacity = "0"
     }
 </script>
 </html>
