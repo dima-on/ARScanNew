@@ -83,17 +83,22 @@ def leg_Detect(Index, frame, landmarks, array):
 
     hip_left = np.array([landmarks[pose_landmark.LEFT_HIP].x, landmarks[pose_landmark.LEFT_HIP].y])
     hip_right = np.array([landmarks[pose_landmark.RIGHT_HIP].x, landmarks[pose_landmark.RIGHT_HIP].y])
+    heel_left = np.array([landmarks[pose_landmark.LEFT_ANKLE].x, landmarks[pose_landmark.LEFT_ANKLE].y])
 
     distanceX = int((hip_left[0] - hip_right[0]) * (array[8][Index]))
+    distanceY = int((hip_left[1] - heel_left[1]) * (array[8][Index]))
 
     if distanceX <= 0:
         distanceX *= -1
+    if distanceY <= 0:
+        distanceY *= -1
 
-    print(ProcentSizeY)
+    kof_len_leg = (distanceY * ySize) / (distanceX * xSize)
+    print(kof_len_leg, distanceX, distanceY)
     ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[9][Index])
+    ySizeForNew = int((((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[9][Index]) * kof_len_leg)
 
     new_size = (xSizeForNew, ySizeForNew)
 
