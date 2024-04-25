@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import mediapipe as mp
 from PIL import Image
@@ -56,7 +58,6 @@ def body_Detect(Index, frame, landmarks, array):
     offsetX = int(((xSizeForNew / 100) * array[2][Index]))
     offsetY = int(((ySizeForNew / 100) * array[1][Index]))
 
-    PosYSholder = shoulder_left[1] * ySize
     center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
     center_y = int(((shoulder_left[1] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y) / 2) * frame.shape[0]) - offsetY
 
@@ -66,8 +67,7 @@ def body_Detect(Index, frame, landmarks, array):
     XPr = (overlay_position[0] / xSize) * 100
     YPr = (overlay_position[1] / ySize) * 100
 
-    del LeftTop, LeftRight, shoulder_left, shoulder_right, distanceX, xSizeForNew, ySizeForNew, offsetX, offsetY, PosYSholder
-
+    del LeftTop, LeftRight, shoulder_left, shoulder_right, distanceX, xSizeForNew, ySizeForNew, offsetX, offsetY
     return new_size, XPr, YPr
 
 
@@ -77,23 +77,26 @@ def leg_Detect(Index, frame, landmarks, array):
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
-    ProcentSizeY = (1 - ySize / YFSize)
 
     pose_landmark = mp_pose.PoseLandmark
 
     hip_left = np.array([landmarks[pose_landmark.LEFT_HIP].x, landmarks[pose_landmark.LEFT_HIP].y])
     hip_right = np.array([landmarks[pose_landmark.RIGHT_HIP].x, landmarks[pose_landmark.RIGHT_HIP].y])
+    heel_left = np.array([landmarks[pose_landmark.LEFT_ANKLE].x, landmarks[pose_landmark.LEFT_ANKLE].y])
 
     distanceX = int((hip_left[0] - hip_right[0]) * (array[8][Index]))
+    distanceY = int((hip_left[1] - heel_left[1]) * (array[8][Index]))
 
     if distanceX <= 0:
         distanceX *= -1
+    if distanceY <= 0:
+        distanceY *= -1
 
-    print(ProcentSizeY)
+    kof_len_leg = (distanceY * ySize) / (distanceX * xSize)
     ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[9][Index])
+    ySizeForNew = int((((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[9][Index]) * kof_len_leg)
 
     new_size = (xSizeForNew, ySizeForNew)
 
@@ -122,14 +125,13 @@ def delAll():
             try:
                 os.remove(path)
             except:
-                print(i)
+                pass
 
 def resImage(img, indexT, indexD, tag):
     path = "ShopBD/" + str(tag) + ".txt"
     with open(path, 'r') as file:
         content = file.read()
     array = eval(content)
-
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
     image = cv2.imread(img)
@@ -137,6 +139,7 @@ def resImage(img, indexT, indexD, tag):
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     results = pose.process(rgb_image)
+
     XPr, YPr, TopSize = 0, 0, 0
     XPrDown, YPrDown, DownSize = 0, 0, 0
 
@@ -145,7 +148,6 @@ def resImage(img, indexT, indexD, tag):
 
     if results.pose_landmarks:
         landmarks = results.pose_landmarks.landmark
-
         if indexT != -1:
             TopSize, XPr, YPr = body_Detect(indexT, image, landmarks, array)
 
@@ -156,7 +158,7 @@ def resImage(img, indexT, indexD, tag):
             try:
                 os.remove(img)
             except:
-                print()
+                pass
 
 
         pose.close()

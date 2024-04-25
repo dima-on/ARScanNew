@@ -609,7 +609,7 @@
             formData.append('photo', file);
             formData.append('tag', hashtag);
             formData.append('TopIndex', TopIndex);
-            formData.append('DownIndex', DownIndex);
+            formData.append('DownIndex', -1);
 
             fetch('/lick', {
                 method: 'POST',
@@ -668,7 +668,7 @@
             const formData = new FormData();
             formData.append('photo', file);
             formData.append('tag', hashtag);
-            formData.append('TopIndex', TopIndex);
+            formData.append('TopIndex', -1);
             formData.append('DownIndex', DownIndex);
 
             fetch('/lick', {
