@@ -77,7 +77,6 @@ def leg_Detect(Index, frame, landmarks, array):
 
     XFSize, YFSize = 640, 480
     ProcentSizeX = (1 - xSize / XFSize)
-    ProcentSizeY = (1 - ySize / YFSize)
 
     pose_landmark = mp_pose.PoseLandmark
 
@@ -94,7 +93,6 @@ def leg_Detect(Index, frame, landmarks, array):
         distanceY *= -1
 
     kof_len_leg = (distanceY * ySize) / (distanceX * xSize)
-
     ClothXsize, ClothYsize = get_image_size(array[5][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))

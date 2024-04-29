@@ -8,6 +8,7 @@
         let DownIndex = -1
 
         let hashtag = 0
+
         function StartSite() {
             var currentURL = window.location.href;
 
@@ -93,10 +94,42 @@
         }
     </script>
     <style>
-        #Tittle{
+        #Tittle {
             font-family: Georgia;
             font-size: 30px;
-            text-align: center;
+            margin-left: 30px;
+            display: grid;
+        }
+
+        .Top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #circle_buy {
+            height: 20px;
+            display: grid;
+            width: 20px;
+            position: absolute;
+            left: 92%;
+            margin-top: 30px;
+        }
+
+        .Top span {
+            display: grid;
+            position: absolute;
+            left: 92.3%;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .Top img {
+            height: 50px;
+            display: grid;
+            width: 50px;
+            position: absolute;
+            left: 90%;
+            margin-top: 10px;
         }
 
         body {
@@ -210,13 +243,23 @@
         }
 
         .control {
-            margin-top: 50px;
+            margin-top: 10px;
 
         }
 
         .control .button {
             display: flex; /* Делаем .control флекс-контейнером */
             justify-content: center;
+        }
+
+        #buy_button {
+            height: 40px;
+            width: 200px;
+            border: 0;
+            border-radius: 40px;
+            background: #bdbdbd;
+            font-family: Arial;
+            font-size: 30px;
         }
 
         .control .button .min {
@@ -343,6 +386,31 @@
         }
 
         @media screen and (max-width: 600px) {
+            #Tittle {
+                font-size: 20px;
+                display: grid;
+            }
+
+            .Top span {
+                left: 84.8%;
+                margin-top: 19px;
+            }
+
+            #circle_buy {
+                height: 15px;
+                width: 15px;
+                left: 84%;
+                margin-top: 20px;
+            }
+
+
+            .Top img {
+                height: 30px;
+                width: 30px;
+                left: 80%;
+                margin-top: 7px;
+            }
+
             .Chose .TopChose .scrollable-container::-webkit-scrollbar {
                 width: 0;
             }
@@ -431,6 +499,12 @@
                 transform: translate(-50%, 0);
             }
 
+            #buy_button {
+                height: 30px;
+                width: 200px;
+                font-size: 23px;
+            }
+
 
         }
 
@@ -439,8 +513,12 @@
     <title>Dress Room</title>
 </head>
 <body onload="StartSite()">
-
-<h1 id="Tittle">Dress Room</h1>
+<div class="Top">
+    <h1 id="Tittle">Dress Room</h1>
+    <img src="static/Photo/Other/cutch.png" alt="">
+    <img id="circle_buy" src="static/Photo/Other/circle.png" alt="">
+    <span id="span_cloth">0</span>
+</div>
 
 <div class="Up">
     <div class="Phot" id="Photo">
@@ -479,6 +557,7 @@
     </div>
 
     <div class="control">
+        <button id="buy_button" onclick="Add_cloth()">buy</button>
         <div class="text">
 
             <h2>Розмістіть одяг по фігурі</h2>
@@ -498,7 +577,6 @@
             <img class="min" onclick="top_delete()" src="static/Photo/Other/delete.png" alt="">
 
 
-
         </div>
         <div id="Down" class="button">
             <img class="min" onclick="Add_offsetDown()" src="static/Photo/Other/Up.png" alt="">
@@ -511,7 +589,6 @@
             <img class="Big" onclick="Minuse_WithDown()" src="static/Photo/Other/In.png" alt="">
 
             <img class="min" onclick="down_delete()" src="static/Photo/Other/delete.png" alt="">
-
 
 
         </div>
@@ -527,7 +604,12 @@
 
 </body>
 <script>
-
+    let cloth_num = 0
+    function Add_cloth(){
+        const el_span = document.getElementById('span_cloth')
+        cloth_num+=1
+        el_span.innerHTML = cloth_num.toString()
+    }
 
     document.getElementById('test').addEventListener('change', function () {
         uploadPhoto()
@@ -830,12 +912,12 @@
         RightLeftDown(-1)
     }
 
-    function top_delete(){
+    function top_delete() {
         var top_img = document.getElementById('top_cloth_img');
         top_img.style.opacity = "0"
     }
 
-    function down_delete(){
+    function down_delete() {
         var down_img = document.getElementById('down_cloth_img');
         down_img.style.opacity = "0"
     }
