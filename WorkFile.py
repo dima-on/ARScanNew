@@ -131,6 +131,7 @@ def resImage(img, indexT, indexD, tag):
     path = "ShopBD/" + str(tag) + ".txt"
     with open(path, 'r') as file:
         content = file.read()
+        file.close()
     array = eval(content)
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
@@ -168,7 +169,7 @@ def resImage(img, indexT, indexD, tag):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-        return XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize
+        return XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize, array
     else:
         os.remove(img)
         pose.close()
