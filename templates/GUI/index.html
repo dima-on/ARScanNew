@@ -19,34 +19,34 @@
                 hashtag = fragments[fragments.length - 1];
 
             }
+            console.log(hashtag)
+            if (hashtag !== 0){
+                let Top = document.getElementById("Top")
+                let Down = document.getElementById("Down")
+                Down.style.display = "none"
+                Top.style.display = "none"
+                const formData = new FormData();
+                formData.append('tag', hashtag);
 
-
-            let Top = document.getElementById("Top")
-            let Down = document.getElementById("Down")
-            Down.style.display = "none"
-            Top.style.display = "none"
-            const formData = new FormData();
-            formData.append('tag', hashtag);
-
-            fetch('/StartProgram', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    let ImageArrayD = data.result_imageD;
-                    for (var D = 0; D < ImageArrayD.length; D++) {
-                        console.log(ImageArrayD[D])
-                        AddBlockDown(ImageArrayD[D], D)
-                    }
-                    let ImageArray = data.result_image;
-                    for (var i = 0; i < ImageArray.length; i++) {
-                        console.log(ImageArray[i])
-                        AddBlockTop(ImageArray[i], i)
-                    }
-
+                fetch('/StartProgram', {
+                    method: 'POST',
+                    body: formData
                 })
+                    .then(response => response.json())
+                    .then(data => {
+                        let ImageArrayD = data.result_imageD;
+                        for (var D = 0; D < ImageArrayD.length; D++) {
+                            console.log(ImageArrayD[D])
+                            AddBlockDown(ImageArrayD[D], D)
+                        }
+                        let ImageArray = data.result_image;
+                        for (var i = 0; i < ImageArray.length; i++) {
+                            console.log(ImageArray[i])
+                            AddBlockTop(ImageArray[i], i)
+                        }
 
+                    })
+            }
 
         }
 
@@ -529,10 +529,10 @@
              alt="Your Image">
         <div class="in">
             <div class="inin">
-                <img id="top_cloth_img" src="static/Photo/Top/T_Short_Red.png" alt="">
+                <img id="top_cloth_img" src="" alt="">
             </div>
             <div class="ininDown">
-                <img id="down_cloth_img" src="static/Photo/Top/T_Short_Red.png" alt="">
+                <img id="down_cloth_img" src="" alt="">
             </div>
         </div>
 
