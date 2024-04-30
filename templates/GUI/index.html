@@ -615,6 +615,7 @@
 
     document.getElementById('test').addEventListener('change', function () {
         uploadPhoto()
+        PhotoDownload()
     })
     document.getElementById('testImage').addEventListener('click', function (event) {
         const fileInput = document.getElementById('test');
@@ -668,7 +669,12 @@
         Top.style.display = "flex"
 
     }
+    function PhotoDownload(){
+        const fileInput = document.getElementById('test');
+        const file = fileInput.files[0];
+        document.getElementById('testImage').src = URL.createObjectURL(file);
 
+    }
     function uploadPhoto() {
 
 
@@ -706,7 +712,6 @@
                 .then(data => {
 
 
-                    document.getElementById('testImage').src = URL.createObjectURL(file);
                     imG = document.getElementById('testImage')
 
                     hei = window.getComputedStyle(Phot).height
@@ -770,7 +775,6 @@
                 .then(data => {
 
 
-                    document.getElementById('testImage').src = URL.createObjectURL(file);
                     imG = document.getElementById('testImage')
 
                     hei = window.getComputedStyle(Phot).height
