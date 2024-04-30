@@ -168,8 +168,8 @@ def resImage(img, indexT, indexD, tag):
         gc.collect()
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-        return XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize, array
+        tup_return = [XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize, array]
+        return tup_return
     else:
         os.remove(img)
         pose.close()
