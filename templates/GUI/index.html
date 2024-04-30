@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="static/Photo/Other/icon.png">
     <script>
         let TopIndex = -1
         let DownIndex = -1
@@ -258,7 +259,7 @@
             border: 0;
             border-radius: 40px;
             background: #bdbdbd;
-            font-family: Arial;
+            font-family: initial;
             font-size: 30px;
         }
 
@@ -366,13 +367,14 @@
             position: absolute;
             left: 50%;
             transition: all 0.5s ease-out;
-            z-index: 1;
+            z-index: 2;
             pointer-events: none;
         }
 
         .ininDown {
             position: absolute;
             left: 50%;
+            z-index: 1;
             transition: all 0.5s ease-out;
             pointer-events: none;
         }
@@ -557,7 +559,7 @@
     </div>
 
     <div class="control">
-        <button id="buy_button" onclick="Add_cloth()">buy</button>
+        <button id="buy_button" onclick="Add_cloth()">Купити</button>
         <div class="text">
 
             <h2>Розмістіть одяг по фігурі</h2>
@@ -669,8 +671,9 @@
 
     function uploadPhoto() {
 
-        uploadPhotoTop()
+
         uploadPhotoDown()
+        uploadPhotoTop()
     }
 
     function uploadPhotoTop() {
@@ -682,6 +685,8 @@
         let inBlock = document.querySelector('.in');
 
         let inRelative = document.querySelector(".inin")
+        let inRelativeDown = document.querySelector(".ininDown")
+
 
         let Phot = document.querySelector(".Phot")
 
@@ -723,6 +728,8 @@
                     IM.style.height = y + "px"
                     IM.style.opacity = "1"
 
+                    inRelative.style.zIndex = "2"
+                    inRelativeDown.style.zIndex = "1"
 
                 })
 
@@ -742,6 +749,8 @@
         let inBlock = document.querySelector('.in');
 
         let inRelativeDown = document.querySelector(".ininDown")
+        let inRelative = document.querySelector(".inin")
+
 
         let Phot = document.querySelector(".Phot")
 
@@ -782,6 +791,9 @@
                     IMDown.style.height = yDown + "px"
 
                     IMDown.style.opacity = "1"
+
+                    inRelative.style.zIndex = "1"
+                    inRelativeDown.style.zIndex = "2"
 
                 })
 
