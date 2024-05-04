@@ -42,6 +42,7 @@ def lick():
         XPrDown = tup[4]
         YPrDown = tup[5]
         DownSize = tup[6]
+        del tup
 
     return jsonify({'XPr': XPr, 'YPr': YPr, 'SizeDis': SizeDis, 'TopSize': TopSize, 'XPrDown': XPrDown, 'YPrDown': YPrDown, 'DownSize': DownSize})
 
@@ -57,7 +58,10 @@ def StartAll():
 
     Top_Image_Path = array[0]
     Down_Image_Path = array[5]
-    return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path})
+    Top_Price = array[10]
+    Down_Price = array[11]
+    print(Down_Price)
+    return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path, 'Top_Price': Top_Price, 'Down_Price': Down_Price})
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=443, ssl_context=context)
     #app.run(host='0.0.0.0', port=5000)

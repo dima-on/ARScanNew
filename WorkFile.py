@@ -132,6 +132,7 @@ def resImage(img, indexT, indexD, tag):
     with open(path, 'r') as file:
         content = file.read()
         file.close()
+
     array = eval(content)
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
@@ -163,12 +164,13 @@ def resImage(img, indexT, indexD, tag):
 
 
         pose.close()
+        del results, array
 
 
         gc.collect()
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        tup_return = [XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize, array]
+        tup_return = [XPr, YPr, massSize, TopSize, XPrDown, YPrDown, DownSize]
         return tup_return
     else:
         os.remove(img)
