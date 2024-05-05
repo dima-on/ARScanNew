@@ -750,7 +750,7 @@
         shop_block.style.left = '-100%'
     " src="static/Photo/Other/close.png" alt="">
 
-    <button id="Buy_All">buy</button>
+    <button id="Buy_All" onclick="buy_and_send()">buy</button>
 </div>
 
 </body>
@@ -1108,6 +1108,7 @@
     function add_shop(path, Price) {
         console.log(Price)
         var newDiv = document.createElement("div")
+        newDiv.setAttribute("id_cloth", path);
         var parentElement = document.querySelector(".Buy_cloth .scrollable-container")
         var newImage = document.createElement("img")
         var tit = document.createElement("h1")
@@ -1162,6 +1163,31 @@
         }
         button.innerHTML = final.toString()
         console.log(final)
+
+
+    }
+
+    function buy_and_send(){
+        let All_block = document.querySelectorAll('.Buy_cloth .scrollable-container .block')
+        let out_id = []
+        for (let i = 0; i < All_block.length; i++){
+            out_id.push(All_block[i].getAttribute("id_cloth"))
+        }
+        console.log(out_id)
+
+        const formData = new FormData()
+        formData.append('id', out_id)
+        formData.append('name', "@Drag_GameStudio")
+        formData.append('tag', hashtag)
+
+
+        fetch('/send_buy', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {})
+
 
 
     }
