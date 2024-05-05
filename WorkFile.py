@@ -8,6 +8,7 @@ import numpy as np
 import gc
 import requests
 from io import BytesIO
+import util_save
 
 
 
@@ -29,7 +30,7 @@ def get_image_size(url):
     width, height = image.size
     return width, height
 
-def body_Detect(Index, frame, landmarks, array):
+def body_Detect(Index, frame, landmarks, data):
     ySize, xSize = frame.shape[:2]
 
     XFSize, YFSize = 640, 480
@@ -43,20 +44,20 @@ def body_Detect(Index, frame, landmarks, array):
     shoulder_right = np.array([landmarks[12].x, landmarks[12].y - LeftRight])
 
 
-    distanceX = int((shoulder_left[0] - shoulder_right[0]) * array[3][Index])
+    distanceX = int((shoulder_left[0] - shoulder_right[0]) * data["top_width"][Index])
 
 
     if distanceX <= 0:
         distanceX *= -1
 
-    ClothYsize, ClothXsize = get_image_size(str(array[0][Index]))
+    ClothYsize, ClothXsize = get_image_size(str(data["top_link"][Index]))
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[4][Index])
+    ySizeForNew = int(((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * data["top_height"][Index])
 
     new_size = (xSizeForNew, ySizeForNew)
-    offsetX = int(((xSizeForNew / 100) * array[2][Index]))
-    offsetY = int(((ySizeForNew / 100) * array[1][Index]))
+    offsetX = int(((xSizeForNew / 100) * data["top_x_offset"][Index]))
+    offsetY = int(((ySizeForNew / 100) * data["top_y_offset"][Index]))
 
     center_x = int(((shoulder_left[0] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x) / 2) * frame.shape[1]) + offsetX
     center_y = int(((shoulder_left[1] + landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y) / 2) * frame.shape[0]) - offsetY
@@ -71,7 +72,7 @@ def body_Detect(Index, frame, landmarks, array):
     return new_size, XPr, YPr
 
 
-def leg_Detect(Index, frame, landmarks, array):
+def leg_Detect(Index, frame, landmarks, data):
 
     ySize, xSize = frame.shape[:2]
 
@@ -84,8 +85,8 @@ def leg_Detect(Index, frame, landmarks, array):
     hip_right = np.array([landmarks[pose_landmark.RIGHT_HIP].x, landmarks[pose_landmark.RIGHT_HIP].y])
     heel_left = np.array([landmarks[pose_landmark.LEFT_ANKLE].x, landmarks[pose_landmark.LEFT_ANKLE].y])
 
-    distanceX = int((hip_left[0] - hip_right[0]) * (array[8][Index]))
-    distanceY = int((hip_left[1] - heel_left[1]) * (array[8][Index]))
+    distanceX = int((hip_left[0] - hip_right[0]) * (data["down_width"][Index]))
+    distanceY = int((hip_left[1] - heel_left[1]) * (data["down_width"][Index]))
 
     if distanceX <= 0:
         distanceX *= -1
@@ -93,15 +94,15 @@ def leg_Detect(Index, frame, landmarks, array):
         distanceY *= -1
 
     kof_len_leg = (distanceY * ySize) / (distanceX * xSize)
-    ClothXsize, ClothYsize = get_image_size(array[5][Index])
+    ClothXsize, ClothYsize = get_image_size(data["down_link"][Index])
 
     xSizeForNew = int(distanceX - (distanceX * ProcentSizeX))
-    ySizeForNew = int((((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * array[9][Index]) * kof_len_leg)
+    ySizeForNew = int((((xSizeForNew / ClothYsize) * ClothXsize) + ((xSizeForNew / ClothYsize) * ClothXsize) * data["down_height"][Index]) * kof_len_leg)
 
     new_size = (xSizeForNew, ySizeForNew)
 
-    offsetY = int((ySizeForNew / 100) * array[6][Index])
-    offsetX = int((xSizeForNew / 100) * array[7][Index])
+    offsetY = int((ySizeForNew / 100) * data["down_y_offset"][Index])
+    offsetX = int((xSizeForNew / 100) * data["down_x_offset"][Index])
 
     center_x = int((hip_left[0] + landmarks[pose_landmark.RIGHT_HIP].x) / 2 * frame.shape[1]) + offsetX
     center_y = int((hip_left[1] + landmarks[pose_landmark.RIGHT_HIP].y) / 2 * frame.shape[0] - offsetY)
@@ -128,12 +129,9 @@ def delAll():
                 pass
 
 def resImage(img, indexT, indexD, tag):
-    path = "ShopBD/" + str(tag) + ".txt"
-    with open(path, 'r') as file:
-        content = file.read()
-        file.close()
+    path = "ShopBD/" + str(tag) + ".json"
+    data = util_save.open_jsonAll(path)
 
-    array = eval(content)
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
     image = cv2.imread(img)
@@ -151,10 +149,10 @@ def resImage(img, indexT, indexD, tag):
     if results.pose_landmarks:
         landmarks = results.pose_landmarks.landmark
         if indexT != -1:
-            TopSize, XPr, YPr = body_Detect(indexT, image, landmarks, array)
+            TopSize, XPr, YPr = body_Detect(indexT, image, landmarks, data)
 
         if indexD != -1:
-            DownSize, XPrDown, YPrDown = leg_Detect(indexD, image, landmarks, array)
+            DownSize, XPrDown, YPrDown = leg_Detect(indexD, image, landmarks, data)
 
         if os.path.isfile(img):
             try:
@@ -164,7 +162,7 @@ def resImage(img, indexT, indexD, tag):
 
 
         pose.close()
-        del results, array
+        del results
 
 
         gc.collect()

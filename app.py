@@ -55,15 +55,15 @@ def lick():
 def StartAll():
     tag = request.form.get('tag')
 
-    path = "ShopBD/" + str(tag) + ".txt"
-    with open(path, 'r') as file:
-        content = file.read()
-    array = eval(content)
+    path = "ShopBD/" + str(tag) + ".json"
 
-    Top_Image_Path = array[0]
-    Down_Image_Path = array[5]
-    Top_Price = array[10]
-    Down_Price = array[11]
+    data = util_save.open_jsonAll(path)
+
+
+    Top_Image_Path = data["top_link"]
+    Down_Image_Path = data["down_link"]
+    Top_Price = data["top_price"]
+    Down_Price = data["down_price"]
     print(Down_Price)
     return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path, 'Top_Price': Top_Price, 'Down_Price': Down_Price})
 

@@ -20,13 +20,11 @@ def get_login():
     for i in range(len(all_db)):
         path = "ShopBD/" + all_db[i]
 
-        with open(path, 'r') as file:
-            content = file.read()
+        data = util_save.open_jsonAll(path)
+        array = data["login_pass"]
+        array.append(all_db[i])
 
-        array = eval(content)
-        array[12].append(all_db[i])
-
-        out.append(array[12])
+        out.append(array)
 
     print(out)
     return out

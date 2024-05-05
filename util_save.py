@@ -21,6 +21,12 @@ def open_json(file_name):
         data = json.load(json_file)
 
     return data
+def open_jsonAll(file_name):
+    with open(file_name, "r") as json_file:
+        data = json.load(json_file)
+
+    return data
+
 
 def clear_json(file_name):
     file_path = "order/" + file_name
