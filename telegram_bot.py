@@ -2,18 +2,25 @@ import telebot
 import os
 import json
 import util_save
+import time
+import threading
+
 
 bot = telebot.TeleBot(token='6867372014:AAE_G_4dsmQdsfIHX29X604AK2r8HHFLf_8')
 
 user_state = {}
 user_index = {}
 user_shop = {}
+keys = {} #name, num
 regist = 0
 
-#util_save.save_json("test.txt.json", {
-    #"cloth": [[1, 24, 13], [12, 245, 134]],
-    #"name": ["@Drag_GameStudio", "@Drag_GameStudio1"]
-#})
+#command
+regist_command = "зарееструватися"
+info_command = "iнформацiя"
+clear_command = "очистити"
+live_command = "вийти з аккаунта"
+
+
 def get_login():
     all_db = os.listdir("ShopBD/")
     out = []
@@ -36,8 +43,24 @@ def instalizite_shop_setting():
     user_shop = data
     print(user_shop)
 
-regist = get_login()
-instalizite_shop_setting()
+def instalizite_keys():
+    global keys
+    filesRoot = os.listdir("order/")
+    for file in filesRoot:
+        path = "order/" + file
+        data = util_save.open_jsonAll(path)
+        count_keys = len(data["cloth"])
+        keys[file] = count_keys
+    print(keys)
+
+def instalizite_all():
+    global regist
+
+    instalizite_keys()
+    instalizite_shop_setting()
+    regist = get_login()
+
+instalizite_all()
 
 def save_shop_setting():
 
@@ -45,17 +68,75 @@ def save_shop_setting():
         json.dump(user_shop, json_file)
 
 def get_information(name_shop):
-    print(name_shop)
-    file_name = name_shop + ".json"
+    file_name = name_shop
     out_data = util_save.open_json(file_name)
     return out_data
+
+def event_info(message):
+    global keys
+    data = get_information(user_shop.get(message))
+    print(keys[user_shop.get(message)], len(data["cloth"]))
+
+    if keys[user_shop.get(message)] != len(data["cloth"]):
+
+        for i in range(keys[user_shop.get(message)], len(data["name"])):
+            text = str(data["name"][i]) + " заказал " + str(data["cloth"][i])
+            bot.send_message(message, text)
+
+def send_info():
+    for key in user_shop.keys():
+        if user_shop.get(key) != None:
+            print(key)
+            event_info(key)
+    for key in user_shop.keys():
+        if user_shop.get(key) != None:
+            data = get_information(user_shop.get(key))
+            keys[user_shop.get(key)] = len(data["cloth"])
+
+def time_info():
+    while True:
+        send_info()
+        time.sleep(5)
+
+def get_all_info(message):
+
+    data = get_information(user_shop.get(str(message.chat.id)))
+    for i in range(len(data["name"])):
+        text = str(data["name"][i]) + " заказал " + str(data["cloth"][i])
+        bot.send_message(message.chat.id, text)
+
+    key = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    zero_button = telebot.types.KeyboardButton(info_command)
+    one_button = telebot.types.KeyboardButton(clear_command)
+    two_button = telebot.types.KeyboardButton(live_command)
+    key.add(zero_button)
+    key.add(one_button)
+    key.add(two_button)
+
+    bot.send_message(message.chat.id, 'всі замовлення', reply_markup=key)
+
+def clear_info(message):
+    util_save.clear_json(user_shop[str(message.chat.id)])
+    for i in keys.keys():
+        keys[i] = 0
+
+    key = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    one_button = telebot.types.KeyboardButton(info_command)
+    three_button = telebot.types.KeyboardButton(clear_command)
+    two_button = telebot.types.KeyboardButton(live_command)
+
+    key.add(one_button)
+    key.add(three_button)
+    key.add(two_button)
+
+    bot.send_message(message.chat.id, 'всі замовлення очищенні', reply_markup=key)
 
 @bot.message_handler(commands=['start'])
 def start_fun(message):
     key = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    one_button = telebot.types.KeyboardButton("рег")
+    one_button = telebot.types.KeyboardButton(regist_command)
     key.add(one_button)
-    bot.send_message(message.chat.id, 'Hello', reply_markup=key)
+    bot.send_message(message.chat.id, 'Доброго дня вас вітає телеграм бот arscan цей бот допоможе менеджерам магазинів переглянути всі замовлення з сайту arscan.space', reply_markup=key)
 
 @bot.message_handler(func=lambda message: user_state.get(message.chat.id) == 'wait_login')
 def wait_login(message):
@@ -64,8 +145,13 @@ def wait_login(message):
         if log == regist[i][0]:
             user_state[message.chat.id] = "wait_for_password"
             user_index[message.chat.id] = i
-            bot.send_message(message.chat.id, "password:")
+            bot.send_message(message.chat.id, "будь ласка, введіть пароль")
             break
+    else:
+        user_state[message.chat.id] = None
+        bot.send_message(message.chat.id, "логін не знайдено. будь ласка перевірте введену інформацію і спробуєте ще раз")
+
+        start_fun(message)
 
 @bot.message_handler(func=lambda message: user_state.get(message.chat.id) == 'wait_for_password')
 def wait_for_password(message):
@@ -73,64 +159,61 @@ def wait_for_password(message):
     if password == regist[user_index.get(message.chat.id)][1]:
 
         key = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-        one_button = telebot.types.KeyboardButton("инфа")
-        two_button = telebot.types.KeyboardButton("выйти")
+        one_button = telebot.types.KeyboardButton(info_command)
+        three_button = telebot.types.KeyboardButton(clear_command)
+        two_button = telebot.types.KeyboardButton(live_command)
 
         key.add(one_button)
+        key.add(three_button)
         key.add(two_button)
 
-        bot.send_message(message.chat.id, 'привет', reply_markup=key)
+        bot.send_message(message.chat.id, 'добрий день ви увійшли до облікового запису', reply_markup=key)
 
         user_state[message.chat.id] = None
         user_shop[str(message.chat.id)] = regist[user_index.get(message.chat.id)][2]
         save_shop_setting()
         print(user_shop)
     else:
-        bot.send_message(message.chat.id, "no")
+        bot.send_message(message.chat.id, "пароль не вірний. будь ласка перевірте введену інформацію і спробуєте ще раз")
         user_state[message.chat.id] = None
+        start_fun(message)
 
 @bot.message_handler(content_types=["text"])
 def answer(message):
-    if message.text == "рег":
+    global keys
+    print(message.text)
+
+    if message.text == regist_command:
         user_state[message.chat.id] = "wait_login"
         bot.send_message(message.chat.id, "login:")
 
-    if message.text == "инфа":
-        print(user_shop)
-        print(message.chat.id)
-        data = get_information(user_shop.get(str(message.chat.id)))
-        for i in range(len(data["name"])):
-            text = str(data["name"][i]) + " заказал " + str(data["cloth"][i])
-            bot.send_message(message.chat.id, text)
+    elif message.text == info_command:
+        get_all_info(message)
 
-        key = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-        zero_button = telebot.types.KeyboardButton("инфа")
-        one_button = telebot.types.KeyboardButton("clean")
-        two_button = telebot.types.KeyboardButton("выйти")
-        key.add(zero_button)
-        key.add(one_button)
-        key.add(two_button)
+    elif message.text == live_command:
 
-        bot.send_message(message.chat.id, 'd', reply_markup=key)
-
-    if message.text == "выйти":
         user_shop[str(message.chat.id)] = None
         start_fun(message)
         save_shop_setting()
         print(user_shop)
 
-    if message.text == "clean":
-        util_save.clear_json(user_shop[str(message.chat.id)] + ".json")
+    elif message.text == clear_command:
+        clear_info(message)
 
-        key = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-        one_button = telebot.types.KeyboardButton("инфа")
-        two_button = telebot.types.KeyboardButton("выйти")
+    else:
+        bot.send_message(message.chat.id, "Пробачте з'явилася помилка будь ласка спробуйте ще раз")
+        start_fun(message)
 
-        key.add(one_button)
-        key.add(two_button)
+def start_bot():
+    bot.polling(none_stop=True)
 
-        bot.send_message(message.chat.id, 'привет', reply_markup=key)
+def main():
+    telegram_thread = threading.Thread(target=start_bot)
+    res_info = threading.Thread(target=time_info)
+
+    res_info.start()
+
+    telegram_thread.start()
 
 if __name__ == "__main__":
-    bot.polling(non_stop=True)
-
+    main()

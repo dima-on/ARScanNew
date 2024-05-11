@@ -74,13 +74,13 @@ def send_buy():
     id_buy = [url.strip() for url in id_buy.split(",")]
     print(id_buy)
     tag = request.form.get('tag')
-    data = util_save.open_json(tag + ".txt.json")
+    data = util_save.open_json(tag + ".json")
     data["cloth"].append(id_buy)
     data["name"].append(name)
-    util_save.save_json(tag + ".txt.json", data)
+    util_save.save_json(tag + ".json", data)
     return jsonify({'result': "sus"})
 def run_telegram_bot():
-    telegram_bot.bot.polling(non_stop=True)
+    telegram_bot.main()
 
 def run_flask_app():
     #app.run(host='0.0.0.0', port=5000)
