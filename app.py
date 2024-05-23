@@ -83,8 +83,8 @@ def run_telegram_bot():
     telegram_bot.main()
 
 def run_flask_app():
-    app.run(host='0.0.0.0', port=5000)
-    #app.run(host='0.0.0.0', port=443, ssl_context=context)
+    #app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=443, ssl_context=context)
 
 if __name__ == '__main__':
     telegram_thread = threading.Thread(target=run_telegram_bot)
