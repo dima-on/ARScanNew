@@ -1,0 +1,17 @@
+{
+  "top_link": ["https://i.postimg.cc/T3Vd4bTX/hudy.png", "https://i.postimg.cc/G2V9C1V0/hudy2.png"],
+  "top_y_offset": [-38, -30],
+  "top_x_offset": [-3, 1],
+  "top_width": [1150, 1300],
+  "top_height": [-0.1, -0.1],
+  "top_price": [100, 1232],
+
+  "down_link": ["https://i.postimg.cc/V6RbQT1m/down-pink.png", "https://i.postimg.cc/nL1LCDW1/down2.png"],
+  "down_y_offset": [-35, -36],
+  "down_x_offset": [2, 0],
+  "down_width": [1400, 1400],
+  "down_height": [0.4, 0.15],
+  "down_price": [134, 1232],
+
+  "login_pass": ["encore", "admin"]
+}
