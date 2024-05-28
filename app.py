@@ -6,8 +6,14 @@ import threading
 
 import util_save
 
+import ssl
+
 context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-context.load_cert_chain(certfile='ssl/cert.pem', keyfile='ssl/private.pem')
+
+context.load_cert_chain(certfile='ssl/full_chain.crt', keyfile='ssl/private.key')
+
+# context.load_cert_chain(certfile='C:\\path\\to\\chain.crt', keyfile='C:\\path\\to\\private.key')
+
 
 
 app = Flask(__name__)
