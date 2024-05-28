@@ -6,19 +6,10 @@ import threading
 
 import util_save
 
-import ssl
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-
-context.load_cert_chain(certfile='ssl/full_chain.crt', keyfile='ssl/private.key')
-
-# context.load_cert_chain(certfile='C:\\path\\to\\chain.crt', keyfile='C:\\path\\to\\private.key')
-
-
+context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+context.load_cert_chain(certfile='ssl/arscan_space.crt', keyfile='ssl/private.key')
 
 app = Flask(__name__)
-
-
 
 @app.route('/')
 def index():
