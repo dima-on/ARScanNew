@@ -61,8 +61,15 @@ def StartAll():
     Down_Image_Path = data["down_link"]
     Top_Price = data["top_price"]
     Down_Price = data["down_price"]
+    Top_article = data["top_article"]
+    Down_article = data["down_article"]
     print(Down_Price)
-    return jsonify({'result_image': Top_Image_Path, 'result_imageD': Down_Image_Path, 'Top_Price': Top_Price, 'Down_Price': Down_Price})
+    return jsonify({'result_image': Top_Image_Path,
+                    'result_imageD': Down_Image_Path,
+                    'Top_Price': Top_Price,
+                    'Down_Price': Down_Price,
+                    "Top_article": Top_article,
+                    "Down_article": Down_article})
 
 @app.route('/send_buy', methods=['POST'])
 def send_buy():
@@ -81,8 +88,8 @@ def run_telegram_bot():
     pass
 
 def run_flask_app():
-    #app.run(host='0.0.0.0', port=5000)
-    app.run(host='0.0.0.0', port=443, ssl_context=context)
+    app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=443, ssl_context=context)
 
 if __name__ == '__main__':
     telegram_thread = threading.Thread(target=run_telegram_bot)

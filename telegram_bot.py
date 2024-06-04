@@ -212,7 +212,6 @@ def main():
     res_info = threading.Thread(target=time_info)
 
     res_info.start()
-
     telegram_thread.start()
 
 if __name__ == "__main__":

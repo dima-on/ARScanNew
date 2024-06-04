@@ -13,6 +13,9 @@
         let Top_Price = []
         let Down_Price = []
 
+        let Top_article = []
+        let Down_article = []
+
         let hashtag = 0
 
         function StartSite() {
@@ -43,6 +46,8 @@
 
                         Down_Price = data.Down_Price;
                         Top_Price = data.Top_Price;
+                        Top_article = data.Top_article;
+                        Down_article = data.Down_article;
 
                         for (var D = 0; D < ImageArrayD.length; D++) {
                             console.log(ImageArrayD[D])
@@ -145,7 +150,7 @@
             position: absolute;
             left: 50%;
             margin-top: 200px;
-            font-size: 35px;
+            font-size: 25px;
             transform: translate(-50%, 0);
             border-radius: 45px;
             border: 0;
@@ -829,8 +834,8 @@
         shop_block.style.left = '-100%'
     " src="static/Photo/Other/close.png" alt="">
 
-    <input type="tel" id="input_number" placeholder="number phone">
-    <button id="Buy_All" onclick="buy_and_send()">в кошику пусто</button>
+    <input type="tel" id="input_number" placeholder="Номер телефона">
+    <button id="Buy_All" onclick="buy_and_send()">Оформити Замовлення</button>
 </div>
 
 </body>
@@ -1175,18 +1180,18 @@
         cloth_num += 2
         el_span.innerHTML = cloth_num.toString()
         if (TopIndex >= 0) {
-            add_shop(ImageArray[TopIndex], Top_Price[TopIndex])
+            add_shop(ImageArray[TopIndex], Top_Price[TopIndex], Top_article[TopIndex])
         }
 
         if (DownIndex >= 0) {
-            add_shop(ImageArrayD[DownIndex], Down_Price[DownIndex])
+            add_shop(ImageArrayD[DownIndex], Down_Price[DownIndex], Down_article[DownIndex])
         }
     }
 
-    function add_shop(path, Price) {
+    function add_shop(path, Price, article) {
         console.log(Price)
         var newDiv = document.createElement("div")
-        newDiv.setAttribute("id_cloth", path);
+        newDiv.setAttribute("id_cloth", article);
         var parentElement = document.querySelector(".Buy_cloth .scrollable-container")
         var newImage = document.createElement("img")
         var tit = document.createElement("h1")
@@ -1240,7 +1245,7 @@
             let number = parseInt(text)
             final += number
         }
-        button.innerHTML = final.toString() + "грн"
+        // button.innerHTML = final.toString() + "грн"
         console.log(final)
 
 

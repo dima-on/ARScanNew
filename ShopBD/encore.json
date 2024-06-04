@@ -1,24 +1,42 @@
 {
-  "top_link": ["https://i.postimg.cc/T3Vd4bTX/hudy.png",
-    "https://i.postimg.cc/G2V9C1V0/hudy2.png",
-    "https://i.postimg.cc/DyWGzjy2/coft.png",
-    "https://i.postimg.cc/vHRnc71f/JUST-Top.png"
+  "top_link": [
+    "https://i.postimg.cc/vHRnc71f/JUST-Top.png",
+    "https://i.postimg.cc/MHTCtkBs/IMG-20240601-170940.png",
+    "https://i.postimg.cc/nrcVqwT2/IMG-20240601-171833.png",
+    "https://i.postimg.cc/pdx5rv35/IMG-20240601-173700.png",
+    "https://i.postimg.cc/3wSLFtX1/IMG-20240601-174128.png",
+    "https://i.postimg.cc/NjG7C1fz/IMG-20240601-174501.png",
+    "https://i.postimg.cc/65qpHqxh/IMG-20240601-174719.png",
+    "https://i.postimg.cc/cJBW1GNH/IMG-20240601-174835.png"
     ],
-  "top_y_offset": [-38, -30, -36, -30],
-  "top_x_offset": [-3, 1, -3, 0],
-  "top_width": [1150, 1300, 1400, 600],
-  "top_height": [-0.1, 0.1, 0, 0],
-  "top_price": [100, 1232, 213, 3213],
+  "top_y_offset": [-30, -33, -39, -40, -35, -39, -39, -38],
+  "top_x_offset": [0, -2, -1, 0, -1, 0, 0, 0],
+  "top_width": [600, 1100, 700, 1000, 1200, 600, 600, 650],
+  "top_height": [0, 0, -0.1, 0, -0.1, 0.05, 0.05, 0],
+  "top_price": [460, 890, 550, 680, 1320, 600, 600, 0],
+  "top_article": [
+    "W0307/00-00000188", "W0125/00-00000202", "W0302/00-00000151",
+    "Wo118/00-00000171", "UO236/00-00000187", "W0306/00-00000173",
+    "W0306/00-00000173"],
 
-  "down_link": ["https://i.postimg.cc/V6RbQT1m/down-pink.png",
-    "https://i.postimg.cc/nL1LCDW1/down2.png",
+  "down_link": [
     "https://i.postimg.cc/15JyLsZX/just-down.png",
-    "https://i.postimg.cc/BZMV9RD6/down.png"],
-  "down_y_offset": [-32, -35, -15, -33],
-  "down_x_offset": [2, 0, 2, 1],
-  "down_width": [1300, 1300, 1350, 1450],
-  "down_height": [0.6, 0.25, -0.6, 0.25],
-  "down_price": [134, 1232, 213, 123],
+    "https://i.postimg.cc/BZMV9RD6/down.png",
+    "https://i.postimg.cc/9fxPHsK5/IMG-20240601-171006.png",
+    "https://i.postimg.cc/8cv5pnkz/IMG-20240601-171919.png",
+    "https://i.postimg.cc/ncjDw0vr/IMG-20240601-172129.png",
+    "https://i.postimg.cc/T1mWhP2m/IMG-20240601-174109.png",
+    "https://i.postimg.cc/wMvgbfZB/IMG-20240601-174733.png"
+  ],
+  "down_y_offset": [-15, -33, -5, -34, -25, -32, -15],
+  "down_x_offset": [2, 1, 4, 2, 2, 2, 0],
+  "down_width": [1350, 1450, 1400, 1300, 1300, 1300, 1300],
+  "down_height": [-0.6, 0.25, -0.85, 0.4, -0.6, 0.3, -0.65],
+  "down_price": [500, 1200, 880, 1300, 980, 1320, 500],
+  "down_article": [
+    "W1502/00-00000179", "W0426/00-00000164", "W1505/00-00000196",
+    "W04291/00-00000192", "U1501/00-00000179", " WO428/00-00000184",
+    "W1502/00-00000179"],
 
   "login_pass": ["encore", "admin"]
 }
